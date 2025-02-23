@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { TradeProposalComponent } from '../../../trade/components/trade-proposal/trade-proposal.component';
-import { TeamService } from '../../../../services/team.service';
-import { GlobalService } from '../../../../services/global.service';
+import { TeamService } from '@app/services/team.service';
+import { GlobalService } from '@app/services/global.service';
 import { BsModalService } from 'ngx-bootstrap/modal';
-import { ToastService } from '../../../../services/toast-service.service';
+import { ToastService } from '@app/services/toast-service.service';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { Trade } from '../../../../types';
+import { Trade } from '@app/types';
 
 @Component({
   selector: 'app-trade-review',

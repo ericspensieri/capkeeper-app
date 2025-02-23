@@ -10,7 +10,7 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
+/*
 // Database config (production)
 const pool = mysql.createPool({
     host: process.env.DB_HOST,
@@ -22,9 +22,9 @@ const pool = mysql.createPool({
         ca: fs.readFileSync(path.join(__dirname, '../certs/ca-certificate.crt')),
     }
 }); 
+*/
 
 
-/*
 // Database config (development)
 const pool = mysql.createPool({
     host: 'localhost',
@@ -33,7 +33,7 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME,
     port: process.env.DB_LOCAL_PORT || 3306,
 });
-*/
+
 
 export const db = {
     connect: async () => {

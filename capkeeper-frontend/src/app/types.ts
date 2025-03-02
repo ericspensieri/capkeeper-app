@@ -217,6 +217,7 @@ export interface Log {
     totalProcessed: number,
     updates: number,
     creates: number,
+    skipped: number,
     rows: Log_Row[],
     errors: number
 }
@@ -227,5 +228,6 @@ export interface Log_Row {
     years: number,
     salary: number,
     team: string,
-    position: string
+    position: string,
+    contractType: string
 }

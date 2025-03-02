@@ -25,6 +25,8 @@ interface Warning {
 
 export class PlayerDatabaseComponent {
   modalRef!: BsModalRef;
+  isLoading = false;
+  displaying: 'contracts' | 'trades' = 'contracts';
   league_id!: string;
   allPlayers!: Player[];
   filteredPlayers: Player[] = [];
@@ -38,7 +40,7 @@ export class PlayerDatabaseComponent {
   teamFilter = 'all';
   maxSalary: number = 15000000;
   warnings: Warning[] = [];
-  scrapeLogs: Log[] = [];
+  scrapeLogs!: Log;
   formSubmitted: boolean = false;
   addNextContract: boolean = false;
   toastMessage: string = '';
@@ -374,13 +376,25 @@ export class PlayerDatabaseComponent {
     return this.formData.first_name === '' || this.formData.last_name === '' || this.formData.position === '' || this.formData.short_code === '';
   }
 
-  syncPlayers(): void {
+  syncPlayers(forceAll: boolean): void {
+    this.displaying === 'contracts';
     const today = this.globalService.getToday();
-    this.playerService.scrapeContracts(today)
-    .subscribe(response => {
-      this.scrapeLogs = response.logs;
-      console.log('Response', response);
-    });
+    this.isLoading = true;
+    
+    this.playerService.scrapeContracts(today, forceAll)
+      .subscribe(response => {
+        this.scrapeLogs = response;
+        this.isLoading = false;
+  
+        if (this.globalService.loggedInUser && this.scrapeLogs.rows.length > 0) {
+          let message = 'Database Sync Completed: ' + this.scrapeLogs.rows.length + ' contracts updated.';
+          this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, 'sync', message);
+        }
+      });
+  }
+  
+  setDisplay(display: 'contracts' | 'trades'): void {
+    this.displaying = display;
   }
 
   openModal(template: TemplateRef<any>, player?: Player): void {

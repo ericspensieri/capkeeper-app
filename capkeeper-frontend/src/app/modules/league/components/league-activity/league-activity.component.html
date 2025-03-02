@@ -149,7 +149,7 @@
                   [ngClass]="{
                       'text-green-400': activity.action_type === 'add-player' || activity.action_type === 'create-player' || (activity.action_type === 'ir' && activity.message.includes('activated from')),
                       'text-red-400': activity.action_type === 'drop-player' || (activity.action_type === 'ir' && activity.message.includes('placed on')),
-                      'text-blue-700': activity.action_type === 'trade' || activity.action_type === 'callup',
+                      'text-blue-700': activity.action_type === 'trade' || activity.action_type === 'callup' || activity.action_type === 'sync',
                       'text-gray-800': activity.action_type === 'edit-player' || activity.action_type === 'edit-contract',
                       'text-yellow-300': activity.action_type === 'trade-block',
                   }" 
@@ -169,7 +169,8 @@
                       <path *ngIf="activity.action_type === 'ir' && activity.message.includes('activated from')" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 9H8a5 5 0 0 0 0 10h9m4-10-4-4m4 4-4 4"/>
                       <path *ngIf="activity.action_type === 'callup'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 20V10m0 10-3-3m3 3 3-3m5-13v10m0-10 3 3m-3-3-3 3"/>
                       <path *ngIf="activity.action_type === 'edit-contract'"stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
-                        
+                      <path *ngIf="activity.action_type === 'trade'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16h13M4 16l4-4m-4 4 4 4M20 8H7m13 0-4 4m4-4-4-4"/>  
+                      <path *ngIf="activity.action_type === 'sync'" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.651 7.65a7.131 7.131 0 0 0-12.68 3.15M18.001 4v4h-4m-7.652 8.35a7.13 7.13 0 0 0 12.68-3.15M6 20v-4h4"/>
                   </svg>        
               </div>
           </td>            

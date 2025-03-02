@@ -15,8 +15,9 @@ export const scrapeContractsRoute = {
     path: '/api/scrape-contracts',
     handler: async (req, h) => {
         const last_updated = req.query.date;
+        const forceAll = req.query.forceAll === 'true';
         const targetUrl = 'https://capwages.com/signings';
-        const testMode = true;
+        const testMode = false;
 
         try {
             const response = await axios.get(targetUrl, {
@@ -31,7 +32,7 @@ export const scrapeContractsRoute = {
             $('main table tbody tr').each((i, row) => {
                 
                 if (testMode && tableData.length >= 5) {
-                    return false; // Break the loop after first player
+                    return false;
                 }
 
                 const cells = $(row).find('td');
@@ -42,11 +43,9 @@ export const scrapeContractsRoute = {
                 
                 // Skip 2-way contracts
                 if (contractType.toLowerCase().includes('2-way')) {
-                    console.log(`Skipping 2-way contract for ${fullName}`);
                     return;
                 }
                 
-                // Create structured player object
                 const player = {
                     player_id: `${firstName}-${lastName}`.toLowerCase(),
                     firstName: firstName.trim(),
@@ -63,7 +62,15 @@ export const scrapeContractsRoute = {
             });
 
             const logs = [];
+            let breakLoop = false;
+
             for (const player of tableData) {
+                
+                if (breakLoop && !forceAll) {
+                    console.log(`Skipping remaining players - already processed the latest contracts`);
+                    break;
+                }
+
                 try {
                     const { results: [existingPlayer] } = await db.query(
                         'SELECT * FROM players WHERE player_id = ?',
@@ -71,6 +78,25 @@ export const scrapeContractsRoute = {
                     );
 
                     if (existingPlayer) {
+
+                        let contractMatched = false;
+                        if (player.contractType === 'Std (Ext)') {
+                            contractMatched = 
+                                existingPlayer.years_left_next === player.years && 
+                                existingPlayer.aav_next === player.aav &&
+                                existingPlayer.short_code === player.short_code;
+                        } else {
+                            contractMatched = 
+                                existingPlayer.years_left_current === player.years && 
+                                existingPlayer.aav_current === player.aav &&
+                                existingPlayer.short_code === player.short_code;
+                        }
+
+                        if (contractMatched && !forceAll) {
+                            breakLoop = true;
+                            continue;
+                        }
+
                         let updateQuery;
                         let updateParams;
 
@@ -87,7 +113,7 @@ export const scrapeContractsRoute = {
                                     last_updated = ?
                                 WHERE player_id = ?
                             `;
-                        } else if (player.contractType === 'Std') {
+                        } else if (player.contractType === 'Std' || player.contractType === 'ELC' || player.contractType === '35+ Contract') {
                             updateQuery = `
                                 UPDATE players 
                                 SET years_left_current = ?,
@@ -102,7 +128,7 @@ export const scrapeContractsRoute = {
                             `;
                         } else {
                             logs.push({
-                                status: 'skipped',
+                                status: 'error',
                                 player: `${player.firstName} ${player.lastName}`,
                                 reason: `Unhandled contract type: ${player.contractType}`
                             });
@@ -184,7 +210,7 @@ export const scrapeContractsRoute = {
             return {
                 success: true,
                 rows: logs,
-                totalProcessed: tableData.length,
+                totalProcessed: logs.length,
                 updates: logs.filter(r => r.status === 'updated').length,
                 creates: logs.filter(r => r.status === 'created').length,
                 skipped: logs.filter(r => r.status === 'skipped').length,

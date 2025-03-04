@@ -8,7 +8,7 @@ import { PaginationService } from '@app/services/pagination.service';
 import { TeamService } from '@app/services/team.service';
 import { ToastService } from '@app/services/toast-service.service';
 import { BsModalRef, BsModalService } from 'ngx-bootstrap/modal';
-import { Team, Player, FA_Pick } from '@app/types';
+import { Team, Player, FA_Pick, Log, Log_Row } from '@app/types';
 
 interface Warning {
   header: string,
@@ -25,6 +25,8 @@ interface Warning {
 
 export class PlayerDatabaseComponent {
   modalRef!: BsModalRef;
+  isLoading = false;
+  displaying: 'contracts' | 'trades' = 'contracts';
   league_id!: string;
   allPlayers!: Player[];
   filteredPlayers: Player[] = [];
@@ -38,6 +40,7 @@ export class PlayerDatabaseComponent {
   teamFilter = 'all';
   maxSalary: number = 15000000;
   warnings: Warning[] = [];
+  scrapeLogs!: Log;
   formSubmitted: boolean = false;
   addNextContract: boolean = false;
   toastMessage: string = '';
@@ -111,9 +114,6 @@ export class PlayerDatabaseComponent {
   
     let expiryDate = new Date(fa.expiry_date);
     const targetDate = new Date(2025, 2, 2); // March 2, 2025
-    
-    console.log('Expiry Date:', expiryDate);
-    console.log('Target Date:', targetDate);
 
     // helper method for four nations faceoff long week 
     const isSameDay = expiryDate.getFullYear() === targetDate.getFullYear() &&
@@ -374,6 +374,27 @@ export class PlayerDatabaseComponent {
 
   isButtonDisabled(): boolean {
     return this.formData.first_name === '' || this.formData.last_name === '' || this.formData.position === '' || this.formData.short_code === '';
+  }
+
+  syncPlayers(forceAll: boolean): void {
+    this.displaying === 'contracts';
+    const today = this.globalService.getToday();
+    this.isLoading = true;
+    
+    this.playerService.scrapeContracts(today, forceAll)
+      .subscribe(response => {
+        this.scrapeLogs = response;
+        this.isLoading = false;
+  
+        if (this.globalService.loggedInUser && this.scrapeLogs.rows.length > 0) {
+          let message = 'Database Sync Completed: ' + this.scrapeLogs.rows.length + ' contracts updated.';
+          this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, 'sync', message);
+        }
+      });
+  }
+  
+  setDisplay(display: 'contracts' | 'trades'): void {
+    this.displaying = display;
   }
 
   openModal(template: TemplateRef<any>, player?: Player): void {

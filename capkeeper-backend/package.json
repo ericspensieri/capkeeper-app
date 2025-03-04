@@ -13,6 +13,11 @@
   "description": "",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.637.0",
+    "@babel/cli": "^7.25.7",
+    "@babel/core": "^7.22.5",
+    "@babel/node": "^7.25.7",
+    "@babel/plugin-transform-runtime": "^7.22.5",
+    "@babel/preset-env": "^7.22.5",
     "@babel/runtime": "^7.22.5",
     "@hapi/boom": "^10.0.1",
     "@hapi/h2o2": "^10.0.4",
@@ -20,21 +25,17 @@
     "@hapi/inert": "^7.1.0",
     "@nguniversal/express-engine": "^16.2.0",
     "aws-sdk": "^2.1687.0",
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
     "dotenv": "^16.4.5",
-    "express": "^4.20.0",
     "firebase-admin": "^12.5.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.10.3",
+    "nodemon": "^3.1.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.2",
-    "@babel/cli": "^7.25.7",
-    "@babel/core": "^7.22.5",
-    "@babel/node": "^7.25.7",
-    "@babel/plugin-transform-runtime": "^7.22.5",
-    "@babel/preset-env": "^7.22.5",
-    "nodemon": "^3.1.4"
+    "typescript": "^5.6.2"
   },
   "devDependencies": {
-    
+    "@types/cheerio": "^0.22.35"
   }
 }

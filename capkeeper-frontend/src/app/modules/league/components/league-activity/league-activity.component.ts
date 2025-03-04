@@ -168,7 +168,7 @@ export class LeagueActivityComponent {
 
   formatActionType(action: string): string {
     if (action === 'ir' || action === 'callup') { return 'Roster Move'}
-    if (action === 'create-player' || action === 'edit-player' || action === 'edit-contract') { return 'Database Update'}
+    if (action === 'create-player' || action === 'edit-player' || action === 'edit-contract' || action === 'sync') { return 'Database Update'}
     if (action === 'add-player' || action === 'drop-player') { return 'Add/Drop' }
     if (action === 'trade') { return 'Trade' }
     if (action === 'trade-block') { return 'Trade Block' }

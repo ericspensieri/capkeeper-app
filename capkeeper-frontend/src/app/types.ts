@@ -211,3 +211,23 @@ export interface Season {
     playoffs: boolean,
     points: number,
 }
+
+export interface Log {
+    success: boolean,
+    totalProcessed: number,
+    updates: number,
+    creates: number,
+    skipped: number,
+    rows: Log_Row[],
+    errors: number
+}
+
+export interface Log_Row {
+    status: string,
+    player: string,
+    years: number,
+    salary: number,
+    team: string,
+    position: string,
+    contractType: string
+}

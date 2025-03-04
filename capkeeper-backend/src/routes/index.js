@@ -28,6 +28,7 @@ import { setDraftOrderRoute } from "./set-draft-order.js";
 import { generateFARoute } from "./generate-fas.js";
 import { pickHistoryRoute } from "./pick-history.js";
 import { resolveTradeConditionRoute } from "./resolve-condition.js";
+import { scrapeContractsRoute } from "./scrape-contracts.js";
 
 export default [
     leagueRoute,
@@ -59,5 +60,6 @@ export default [
     createDraftRoute,
     generateFARoute,
     pickHistoryRoute,
-    resolveTradeConditionRoute
+    resolveTradeConditionRoute,
+    scrapeContractsRoute
 ]

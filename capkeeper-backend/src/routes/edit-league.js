@@ -24,7 +24,8 @@ export const editLeagueRoute = {
                 rookie_draft_length,
                 retention_slots,
                 max_retention_perc,
-                protection_sheet_limit
+                protection_sheet_limit,
+                protection_sheet_bench
             } = req.payload;
 
             let result;
@@ -44,11 +45,12 @@ export const editLeagueRoute = {
                     rookie_draft_length = ?,
                     retention_slots = ?,
                     max_retention_perc = ?,
-                    protection_sheet_limit = ?
+                    protection_sheet_limit = ?,
+                    protection_sheet_bench = ?
                 WHERE league_id = ?
                 `;
 
-                result = await db.query(query, [max_roster_size, min_forwards, min_defense, min_goalies, ir_slots, rookie_bank_size, salary_cap, general_draft_length, rookie_draft_length, retention_slots, max_retention_perc, protection_sheet_limit, league_id]);
+                result = await db.query(query, [max_roster_size, min_forwards, min_defense, min_goalies, ir_slots, rookie_bank_size, salary_cap, general_draft_length, rookie_draft_length, retention_slots, max_retention_perc, protection_sheet_limit, protection_sheet_bench, league_id]);
                 return h.response({ success: true, message: 'League settings updated successfully' }).code(200);
             }
 

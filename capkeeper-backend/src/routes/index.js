@@ -30,6 +30,7 @@ import { pickHistoryRoute } from "./pick-history.js";
 import { resolveTradeConditionRoute } from "./resolve-condition.js";
 import { scrapeContractsRoute } from "./scrape-contracts.js";
 import { scrapeTradesRoute } from "./scrape-trades.js";
+import { commissionerToggleRoute } from "./commissioner-toggles.js";
 
 export default [
     leagueRoute,
@@ -54,6 +55,7 @@ export default [
     submitProtectionsRoute,
     loadProtectionsRoute,
     commisssionerHubRoute,
+    commissionerToggleRoute,
     editLeagueRoute,
     adminRightsRoute,
     editAssetRoute,

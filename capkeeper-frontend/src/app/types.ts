@@ -36,7 +36,11 @@ export interface League {
     general_draft_length: number,
     rookie_draft_length: number,
     protection_sheet_limit: number,
+    protection_sheet_bench: number,
     drafts: Draft[];
+    inOffseason: boolean,
+    tradingEnabled: boolean,
+    protectionIsPublic: boolean
 };
 
 export interface Team {

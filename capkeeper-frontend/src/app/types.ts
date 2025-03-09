@@ -229,5 +229,9 @@ export interface Log_Row {
     salary: number,
     team: string,
     position: string,
-    contractType: string
+    contractType: string,
+    oldTeam: string,
+    newTeam: string,
+    date: string,
+    error: string
 }

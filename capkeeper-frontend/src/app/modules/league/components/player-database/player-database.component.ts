@@ -1,4 +1,5 @@
 import { Component, TemplateRef } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { GlobalService } from '@app/services/global.service';
@@ -40,7 +41,8 @@ export class PlayerDatabaseComponent {
   teamFilter = 'all';
   maxSalary: number = 15000000;
   warnings: Warning[] = [];
-  scrapeLogs!: Log;
+  scrapedContracts!: Log;
+  scrapedTrades!: Log;
   formSubmitted: boolean = false;
   addNextContract: boolean = false;
   toastMessage: string = '';
@@ -377,20 +379,49 @@ export class PlayerDatabaseComponent {
   }
 
   syncPlayers(forceAll: boolean): void {
-    this.displaying === 'contracts';
+    this.displaying = 'contracts';
     const today = this.globalService.getToday();
+    const year = this.globalService.league?.current_season ?? 0;
     this.isLoading = true;
     
-    this.playerService.scrapeContracts(today, forceAll)
-      .subscribe(response => {
-        this.scrapeLogs = response;
+    forkJoin({
+      contracts: this.playerService.scrapeContracts(today, forceAll),
+      trades: this.playerService.scrapeTrades(today, forceAll, year)
+    }).subscribe({
+      next: (results) => {
+        this.scrapedContracts = results.contracts;
+        this.scrapedTrades = results.trades;
         this.isLoading = false;
-  
-        if (this.globalService.loggedInUser && this.scrapeLogs.rows.length > 0) {
-          let message = 'Database Sync Completed: ' + this.scrapeLogs.rows.length + ' contracts updated.';
-          this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, 'sync', message);
+        
+        if (this.globalService.loggedInUser) {
+          const contractsCount = this.scrapedContracts.rows.length || 0;
+          const tradesCount = this.scrapedTrades.rows.length || 0;
+          
+          if (contractsCount > 0 || tradesCount > 0) {
+            let message = 'Database Sync: ';
+            
+            if (contractsCount > 0) {
+              message += `${contractsCount} contracts updated`;
+            }
+            
+            if (tradesCount > 0) {
+              message += contractsCount > 0 ? ` and ${tradesCount} trades processed` : `${tradesCount} trades processed`;
+            }
+            
+            this.globalService.recordAction(
+              this.league_id, 
+              this.globalService.loggedInUser.user_name, 
+              'sync', 
+              message
+            );
+          }
         }
-      });
+      },
+      error: (error) => {
+        console.error('Error during sync:', error);
+        this.isLoading = false;
+      }
+    });
   }
   
   setDisplay(display: 'contracts' | 'trades'): void {

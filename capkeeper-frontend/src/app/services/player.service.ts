@@ -41,5 +41,15 @@ export class PlayerService {
       .set('forceAll', forceAll.toString());
     return this.http.get<Log>(url, { params });
   }
+
+  scrapeTrades(date: string, forceAll: boolean, year: number): Observable<Log> {
+    const season = `${year}-${(year + 1).toString().slice(-2)}`;
+    const url = `api/scrape-trades`;
+    const params = new HttpParams()
+      .set('date', date)
+      .set('year', season)
+      .set('forceAll', 'true');
+    return this.http.get<Log>(url, { params });
+  }
   
 }

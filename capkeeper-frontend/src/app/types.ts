@@ -36,7 +36,11 @@ export interface League {
     general_draft_length: number,
     rookie_draft_length: number,
     protection_sheet_limit: number,
+    protection_sheet_bench: number,
     drafts: Draft[];
+    inOffseason: boolean,
+    tradingEnabled: boolean,
+    protectionIsPublic: boolean
 };
 
 export interface Team {
@@ -229,5 +233,9 @@ export interface Log_Row {
     salary: number,
     team: string,
     position: string,
-    contractType: string
+    contractType: string,
+    oldTeam: string,
+    newTeam: string,
+    date: string,
+    error: string
 }

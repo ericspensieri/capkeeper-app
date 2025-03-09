@@ -68,7 +68,7 @@ export class ProtectionSheetComponent {
       this.setProtectionSheet(this.globalService.loggedInTeam.team_id);
       if (this.globalService.league) {
         this.sheet_cap = this.globalService.league.protection_sheet_limit;
-        this.bench_cap = 5000000 + (this.sheet_cap/2);
+        this.bench_cap = this.globalService.league.protection_sheet_bench + (this.sheet_cap/2);
       }
     }
   }

@@ -43,7 +43,7 @@
                             <h2 class="font-semibold text-gray-900 text-sm dark:text-gray-400">League Settings</h2>
                         </td>
                         <td class="items-left align-top p-2 border-b-2">
-                            <h2 class="font-semibold text-gray-900 text-sm dark:text-gray-400">Offseason Commands</h2>
+                            <h2 class="font-semibold text-gray-900 text-sm dark:text-gray-400">Commands</h2>
                         </td>
                     </tr>
                     <tr>
@@ -234,6 +234,21 @@
                                         required
                                     />
                                 </div>
+
+                                <div class="flex items-center justify-between mt-1">
+                                    Protection Sheet Bench:
+                                    <input 
+                                        type="number" 
+                                        [(ngModel)]="leagueSettings.protection_sheet_bench"
+                                        [disabled]="!inEditMode"
+                                        class="bg-gray-50 border border-gray-300 text-xs rounded-lg focus:ring-green-400 focus:border-green-400 max-w-20 p-1 text-left"
+                                        [ngClass]="{
+                                            'text-gray-900 font-normal': inEditMode,
+                                            'text-gray-400 cursor-not-allowed': !inEditMode
+                                        }"
+                                        required
+                                    />
+                                </div>
                             </div>         
                         
                             <!-- Buttons aligned to the right -->
@@ -276,6 +291,24 @@
                         <!-- Offseason Commands -->
                         <td class="items-left align-top p-4">
                             <div class="flex flex-col gap-2">
+
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" [checked]="globalService.league?.tradingEnabled" (change)="toggleLeagueSetting('tradingEnabled')" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-400"></div>
+                                    <span class="ms-3 text-sm font-normal text-gray-900">Trading Enabled</span>
+                                </label>
+                                
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" [checked]="globalService.league?.protectionIsPublic" (change)="toggleLeagueSetting('protectionIsPublic')" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-400"></div>
+                                    <span class="ms-3 text-sm font-normal text-gray-900">Protection Sheets Public</span>
+                                </label>
+                                
+                                <label class="inline-flex mb-1.5 items-center cursor-pointer">
+                                    <input type="checkbox" [checked]="globalService.league?.inOffseason" (change)="toggleLeagueSetting('inOffseason')" class="sr-only peer">
+                                    <div class="relative w-9 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-green-400"></div>
+                                    <span class="ms-3 text-sm font-normal text-gray-900">In Offseason</span>
+                                </label>
                         
                                 <!-- Set Draft Order Button -->
                                 <button (click)="openModal(draftOrderModal)" type="submit" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-xs px-2.5 py-1.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">

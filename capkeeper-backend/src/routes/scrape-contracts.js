@@ -3,13 +3,6 @@ import { db } from '../database.js';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 
-const standardizePosition = (position) => {
-    if (position.includes('RD') || position.includes('LD')) return 'D';
-    if (position.includes('RW') || position.includes('LW') || position.includes('C')) return 'F';
-    if (position.includes('G')) return 'G';
-    return 'F'; 
-};
-
 export const scrapeContractsRoute = {
     method: 'GET',
     path: '/api/scrape-contracts',
@@ -63,15 +56,18 @@ export const scrapeContractsRoute = {
 
             const logs = [];
             let breakLoop = false;
+            let consecutiveMatches = 0;
 
             for (const player of tableData) {
                 
                 if (breakLoop && !forceAll) {
-                    console.log(`Skipping remaining players - already processed the latest contracts`);
+                    console.log(`Skipping remaining players`);
                     break;
                 }
 
                 try {
+                    player.short_code = normalizeTeamCode(player.short_code);
+
                     const { results: [existingPlayer] } = await db.query(
                         'SELECT * FROM players WHERE player_id = ?',
                         [player.player_id]
@@ -93,7 +89,11 @@ export const scrapeContractsRoute = {
                         }
 
                         if (contractMatched && !forceAll) {
-                            breakLoop = true;
+                            consecutiveMatches++; // Increment counter when a match is found
+                            if (consecutiveMatches >= 2) {
+                                console.log(`Found ${consecutiveMatches} consecutive matches, will stop processing after this row`);
+                                breakLoop = true;
+                            }
                             continue;
                         }
 
@@ -222,4 +222,22 @@ export const scrapeContractsRoute = {
             throw Boom.internal('Failed to scrape data', err);
         }
     }
+};
+
+const standardizePosition = (position) => {
+    if (position.includes('RD') || position.includes('LD')) return 'D';
+    if (position.includes('RW') || position.includes('LW') || position.includes('C')) return 'F';
+    if (position.includes('G')) return 'G';
+    return 'F'; 
+};
+
+const normalizeTeamCode = (teamCode) => {
+    const codeMap = {
+        'TBL': 'TB',
+        'NJD': 'NJ',
+        'LAK': 'LA',
+        'SJS': 'SJ'
+    };
+    
+    return codeMap[teamCode] || teamCode;
 };

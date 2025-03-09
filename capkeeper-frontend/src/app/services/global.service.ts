@@ -68,7 +68,6 @@ export class GlobalService {
     });
   }
   
-
   initializeTeam(team: Team): Observable<{ teamInfo: Team, inbox: Trade[] }> {;
     const url = 'api/login'
     const params = new HttpParams().set('team', team.team_id ).set('league', team.league_id)

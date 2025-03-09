@@ -15,11 +15,11 @@ export const adminRightsRoute = {
                     AND user_name = ?
             `;
             let result = await db.query(query, [league_id, user_name]);
-            return h.response({ message: 'IR status updated', result }).code(200);  
+            return h.response({ message: 'Admin Rights updated', result }).code(200);  
 
         }
         catch (error) {
-            console.error('Error handling roster move request:', error);
+            console.error('Error handling request:', error);
             return h.response('An internal error occurred').code(500); 
         }
     }

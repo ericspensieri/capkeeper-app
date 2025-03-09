@@ -336,12 +336,26 @@ export class CommissionerHubComponent {
       user_name: user.user_name,
       league_id: this.league_id,
     }
-    console.log('Payload: ', payload)
     this.http.post('api/toggle-admin', payload)
     .subscribe({
       next: (response) => {
-        console.log('Done')
         this.ngOnInit();
+      },
+      error: (error) => {
+        console.error('Error recording action:', error);
+      }
+    });
+  }
+
+  toggleLeagueSetting(column: string): void {
+    const payload = {
+      column: column,
+      league_id: this.league_id,
+    }
+    this.http.post('api/toggle-setting', payload)
+    .subscribe({
+      next: (response) => {
+        console.log(response);
       },
       error: (error) => {
         console.error('Error recording action:', error);

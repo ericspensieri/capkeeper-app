@@ -9,6 +9,7 @@ export const scrapeContractsRoute = {
     handler: async (req, h) => {
         const last_updated = req.query.date;
         const forceAll = req.query.forceAll === 'true';
+        const inOffseason = req.query.inOffseason === '1';
         const targetUrl = 'https://capwages.com/signings';
         const testMode = false;
 
@@ -21,13 +22,21 @@ export const scrapeContractsRoute = {
 
             const $ = cheerio.load(response.data);
             
-            const tableData = [];
-            $('main table tbody tr').each((i, row) => {
-                
-                if (testMode && tableData.length >= 5) {
-                    return false;
+            const logs = [];
+            let consecutiveMatches = 0;
+            
+            const rows = $('main table tbody tr');
+            
+            for (let i = 0; i < rows.length; i++) {
+                if (consecutiveMatches >= 3 && !forceAll) {
+                    break;
                 }
-
+                
+                if (testMode && logs.length >= 3) {
+                    break;
+                }
+                
+                const row = rows[i];
                 const cells = $(row).find('td');
                 
                 const fullName = $(cells[0]).text().trim();
@@ -36,7 +45,7 @@ export const scrapeContractsRoute = {
                 
                 // Skip 2-way contracts
                 if (contractType.toLowerCase().includes('2-way')) {
-                    return;
+                    continue;
                 }
                 
                 const player = {
@@ -45,37 +54,33 @@ export const scrapeContractsRoute = {
                     lastName: lastName.trim(),
                     age: parseInt($(cells[1]).text().trim()),
                     position: $(cells[2]).text().trim(),
-                    short_code: $(cells[3]).text().trim(),
+                    short_code: normalizeTeamCode($(cells[3]).text().trim()),
                     contractType: contractType,
                     years: parseInt($(cells[6]).text().trim()),
                     aav: parseInt($(cells[7]).text().trim().replace(/[$,]/g, ''))
                 };
                 
-                tableData.push(player);
-            });
-
-            const logs = [];
-            let breakLoop = false;
-            let consecutiveMatches = 0;
-
-            for (const player of tableData) {
-                
-                if (breakLoop && !forceAll) {
-                    console.log(`Skipping remaining players`);
-                    break;
-                }
-
                 try {
-                    player.short_code = normalizeTeamCode(player.short_code);
-
-                    const { results: [existingPlayer] } = await db.query(
-                        'SELECT * FROM players WHERE player_id = ?',
-                        [player.player_id]
+                    const normalizedFirstName = player.firstName.replace(/[.'"-]/g, '').toLowerCase();
+                    const normalizedLastName = player.lastName.replace(/[.'"-]/g, '').toLowerCase();
+                    
+                    const { results: matches } = await db.query(
+                        `SELECT player_id, first_name, last_name, years_left_current, years_left_next, aav_current, aav_next, short_code, position 
+                            FROM players 
+                            WHERE player_id = ? 
+                            OR (
+                                (REPLACE(first_name, '.', '')) = ? 
+                                AND (REPLACE(last_name, '.', '')) = ?
+                                AND position = ?
+                            )`,
+                        [player.player_id, normalizedFirstName, normalizedLastName, standardizePosition(player.position)]
                     );
 
-                    if (existingPlayer) {
+                    let existingPlayer = matches[0];
 
+                    if (existingPlayer) {
                         let contractMatched = false;
+                        
                         if (player.contractType === 'Std (Ext)') {
                             contractMatched = 
                                 existingPlayer.years_left_next === player.years && 
@@ -89,72 +94,73 @@ export const scrapeContractsRoute = {
                         }
 
                         if (contractMatched && !forceAll) {
-                            consecutiveMatches++; // Increment counter when a match is found
-                            if (consecutiveMatches >= 2) {
-                                console.log(`Found ${consecutiveMatches} consecutive matches, will stop processing after this row`);
-                                breakLoop = true;
-                            }
+                            console.log(`Contract for ${player.firstName} ${player.lastName} already matches - Match #${consecutiveMatches + 1}`);
+                            consecutiveMatches++;
                             continue;
-                        }
-
-                        let updateQuery;
-                        let updateParams;
-
-                        if (player.contractType === 'Std (Ext)') {
-                            updateQuery = `
-                                UPDATE players 
-                                SET years_left_next = ?,
-                                    aav_next = ?,
-                                    short_code = ?,
-                                    age = ?,
-                                    expiry_status = 'UFA',
-                                    contract_status = 'Active',
-                                    updated_by = 'Capkeeper Bot',
-                                    last_updated = ?
-                                WHERE player_id = ?
-                            `;
-                        } else if (player.contractType === 'Std' || player.contractType === 'ELC' || player.contractType === '35+ Contract') {
-                            updateQuery = `
-                                UPDATE players 
-                                SET years_left_current = ?,
-                                    aav_current = ?,
-                                    short_code = ?,
-                                    age = ?,
-                                    expiry_status = 'UFA',
-                                    contract_status = 'Active',
-                                    updated_by = 'Capkeeper Bot',
-                                    last_updated = ?
-                                WHERE player_id = ?
-                            `;
                         } else {
+                            consecutiveMatches = 0;
+                            
+                            let updateQuery;
+                            let updateParams;
+
+                            // when the NHL is in offseason but Capkeeper has not completed protection sheets yet, add all contracts to next year
+                            if (player.contractType === 'Std (Ext)' || inOffseason) {
+                                updateQuery = `
+                                    UPDATE players 
+                                    SET years_left_next = ?,
+                                        aav_next = ?,
+                                        short_code = ?,
+                                        age = ?,
+                                        expiry_status = 'UFA',
+                                        contract_status = 'Active',
+                                        updated_by = 'Capkeeper Bot',
+                                        last_updated = ?
+                                    WHERE player_id = ?
+                                `;
+                            } else if (player.contractType === 'Std' || player.contractType === 'ELC' || player.contractType === '35+ Contract') {
+                                updateQuery = `
+                                    UPDATE players 
+                                    SET years_left_current = ?,
+                                        aav_current = ?,
+                                        short_code = ?,
+                                        age = ?,
+                                        expiry_status = 'UFA',
+                                        contract_status = 'Active',
+                                        updated_by = 'Capkeeper Bot',
+                                        last_updated = ?
+                                    WHERE player_id = ?
+                                `;
+                            } else {
+                                logs.push({
+                                    status: 'error',
+                                    player: `${player.firstName} ${player.lastName}`,
+                                    reason: `Unhandled contract type: ${player.contractType}`
+                                });
+                                continue;
+                            }
+
+                            updateParams = [
+                                player.years,
+                                player.aav,
+                                player.short_code,
+                                player.age,
+                                last_updated,
+                                existingPlayer.player_id
+                            ];
+
+                            await db.query(updateQuery, updateParams);
+
                             logs.push({
-                                status: 'error',
+                                status: 'updated',
                                 player: `${player.firstName} ${player.lastName}`,
-                                reason: `Unhandled contract type: ${player.contractType}`
+                                team: player.short_code,
+                                salary: player.aav,
+                                years: player.years,
+                                contractType: player.contractType
                             });
-                            continue;
                         }
-
-                        updateParams = [
-                            player.years,
-                            player.aav,
-                            player.short_code,
-                            player.age,
-                            last_updated,
-                            existingPlayer.player_id
-                        ];
-
-                        await db.query(updateQuery, updateParams);
-
-                        logs.push({
-                            status: 'updated',
-                            player: `${player.firstName} ${player.lastName}`,
-                            team: player.short_code,
-                            salary: player.aav,
-                            years: player.years,
-                            contractType: player.contractType
-                        });
                     } else {
+                        consecutiveMatches = 0;
                         const standardPosition = standardizePosition(player.position);
                         
                         const insertQuery = `
@@ -198,6 +204,7 @@ export const scrapeContractsRoute = {
                         });
                     }
                 } catch (err) {
+                    consecutiveMatches = 0;
                     console.error(`Error processing player ${player.firstName} ${player.lastName}:`, err);
                     logs.push({
                         status: 'error',

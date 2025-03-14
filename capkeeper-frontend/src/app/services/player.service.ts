@@ -34,11 +34,12 @@ export class PlayerService {
     return this.http.get<{ players: Player[] }>(url);
   }
 
-  scrapeContracts(date: string, forceAll: boolean): Observable<Log> {
+  scrapeContracts(date: string, forceAll: boolean, inOffseason: boolean): Observable<Log> {
     const url = `api/scrape-contracts`;
     const params = new HttpParams()
       .set('date', date)
-      .set('forceAll', forceAll.toString());
+      .set('forceAll', forceAll.toString())
+      .set('inOffseason', inOffseason.toString());
     return this.http.get<Log>(url, { params });
   }
 
@@ -48,7 +49,7 @@ export class PlayerService {
     const params = new HttpParams()
       .set('date', date)
       .set('year', season)
-      .set('forceAll', 'true');
+      .set('forceAll', forceAll.toString());
     return this.http.get<Log>(url, { params });
   }
   

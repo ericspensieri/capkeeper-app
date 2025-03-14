@@ -83,13 +83,8 @@ export class CommissionerHubComponent {
   async ngOnInit(): Promise<void> {
     const params = await firstValueFrom(this.route.paramMap);
     this.league_id = params.get('league_id')!;
-  
     if (!this.globalService.league) {
-      try {
-        await this.globalService.initializeLeague(this.league_id, this.router.url);
-      } catch (error) {
-        console.error('Error during league initialization:', error);
-      }
+      this.fetchLeague();
     }
 
     if (this.globalService.league) {
@@ -140,6 +135,14 @@ export class CommissionerHubComponent {
       } catch (error) {
           console.error('Failed to fetch players:', error);
       }
+  }
+
+  async fetchLeague(): Promise<void> {
+    try {
+      await this.globalService.initializeLeague(this.league_id, this.router.url);
+    } catch (error) {
+      console.error('Error during league initialization:', error);
+    }
   }
   
   setDisplay(display: 'users' | 'teams' | 'draft' | 'fa' | 'trade'): void {
@@ -355,7 +358,7 @@ export class CommissionerHubComponent {
     this.http.post('api/toggle-setting', payload)
     .subscribe({
       next: (response) => {
-        console.log(response);
+        this.fetchLeague();
       },
       error: (error) => {
         console.error('Error recording action:', error);
@@ -378,52 +381,46 @@ export class CommissionerHubComponent {
       retention_slots: this.leagueSettings.retention_slots,
       max_retention_perc: this.leagueSettings.max_retention_perc,
       protection_sheet_limit: this.leagueSettings.protection_sheet_limit,
+      protection_sheet_bench: this.leagueSettings.protection_sheet_bench
     };
     
     this.http.post(`/api/${this.league_id}/edit-league`, payload)
     .subscribe({
       next: (response) => {
         this.globalService.league = this.leagueSettings;
+        this.fetchLeague();
         this.toastService.showToast('League settings saved.', true);
       },
       error: (error) => {
         console.error('Error submitting form', error, payload);
       }
     });
-      
-    this.ngOnInit();
   }
 
   saveLeagueDetails(event: Event): void {
     const payload = {
       action: 'details',
       league_name: this.leagueDetails.league_name ? this.leagueDetails.league_name : this.globalService.league?.league_name,
-      picture: this.leagueDetails.picture ? this.leagueDetails.picture : this.globalService.league?.picture,
+      picture: this.leagueDetails.picture !== '' ? this.leagueDetails.picture : this.globalService.league?.picture,
     };
     
     this.http.post(`/api/${this.league_id}/edit-league`, payload)
     .subscribe({
       next: (response) => {
-        if (this.globalService.league && this.leagueDetails.league_name !== this.globalService.league.league_name) {
-          this.globalService.league.league_name = this.leagueDetails.league_name;
-        }
-        if (this.globalService.league && this.leagueDetails.picture !== this.globalService.league.picture) {
-          this.globalService.league.picture = this.leagueDetails.picture;
-        }
+        this.fetchLeague();
         this.toastService.showToast('League details saved.', true);
       },
       error: (error) => {
         console.error('Error submitting form', error, payload);
       }
     });
-      
-    this.ngOnInit();
     
   }
 
   async saveLeaguePicture(event: Event): Promise<void> {
     const url = await this.uploadService.uploadFile(event);
     this.leagueDetails.picture = url;
+    console.log(this.leagueDetails.picture)
   }
 
   searchPlayers(searchKey: string): void {
@@ -799,7 +796,7 @@ export class CommissionerHubComponent {
               console.log('Contract advanced for ' + player.first_name + ' ' + player.last_name);
           },
           error: (error) => {
-              console.error('Error submitting form', error, payload);
+              console.error('Error advancing contract', error, payload);
           }
       });
   }

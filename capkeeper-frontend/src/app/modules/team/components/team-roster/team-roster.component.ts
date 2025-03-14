@@ -27,7 +27,7 @@ export class TeamRosterComponent {
   team!: Team;
   selected!: Player;
   toSwap: Player | null = null;
-  currentSeason: string = '2024-25'; 
+  currentSeason!: string; 
   sortColumn: string | null = 'points';
   sortDirection: 'asc' | 'desc' = 'desc';
   displaying: 'general' | 'rookie' | 'fa' = 'general';
@@ -234,7 +234,6 @@ export class TeamRosterComponent {
         }
       }
     });
-  
     return picksInMonth;
   }
 
@@ -289,7 +288,7 @@ export class TeamRosterComponent {
           let action = 'drop-player';
           this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action, message);
 
-          this.ngOnInit();
+          this.initializeTeam(this.league_id, this.team_id);
           this.toastService.showToast(player.first_name + ' ' + player.last_name + ' dropped to waivers.', true)
         }
       },
@@ -345,7 +344,7 @@ export class TeamRosterComponent {
   
     if (!player.onIR) {
       if (this.team.injured_reserve.length >= 3) {
-        this.ngOnInit();
+        this.initializeTeam(this.league_id, this.team_id);
         this.toastService.showToast('Action could not be completed. Your IR slots are full.', false);
         return false;
       }
@@ -368,7 +367,7 @@ export class TeamRosterComponent {
           let action = 'ir';
           this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action, message);
   
-          this.ngOnInit();
+          this.initializeTeam(this.league_id, this.team_id);
   
           if (this.toSwap) {
             const temp = this.toSwap
@@ -403,8 +402,7 @@ export class TeamRosterComponent {
             this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action, message);
             this.toastService.showToast(player.first_name + ' ' + player.last_name + ' added to the trade block.', true)
           }
-
-          this.ngOnInit();
+          this.initializeTeam(this.league_id, this.team_id);
         }
       },
       error: (error) => {
@@ -461,7 +459,7 @@ export class TeamRosterComponent {
           let action = 'callup';
           this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action, message);
 
-          this.ngOnInit();
+          this.initializeTeam(this.league_id, this.team_id);
           this.toastService.showToast(player.first_name + ' ' + player.last_name + ' activated to main roster.', true)
         }
       },
@@ -477,8 +475,6 @@ export class TeamRosterComponent {
     if (file) {
       const formData = new FormData();
       formData.append('file', file);
-  
-      console.log('FormData contents:', formData.get('file')); 
   
       this.http.post('/api/upload', formData).subscribe({
         next: (response: any) => {
@@ -507,7 +503,7 @@ export class TeamRosterComponent {
 
   closeModal() {
     this.modalRef.hide();
-    this.ngOnInit();
+    this.initializeTeam(this.league_id, this.team_id);
   }
 
 

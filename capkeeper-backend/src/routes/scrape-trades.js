@@ -26,114 +26,172 @@ export const scrapeTradesRoute = {
 
             const $ = cheerio.load(response.data);
             
-            const trades = [];
-            let breakLoop = false;
+            const tradesToProcess = [];
             let processedTrades = 0;
-
-            $(`div[id^="${currentYearPrefix}-"], div[id^="${nextYearPrefix}-"]`).each((i, tradeCard) => {
+            let consecutiveMatchingTrades = 0;
+            
+            const tradeCards = [];
+            $(`div[id^="${currentYearPrefix}-"], div[id^="${nextYearPrefix}-"]`).each(function(i) {
+                const id = $(this).attr('id');
+                tradeCards.push(this);
+            });
+            
+            for (let i = 0; i < tradeCards.length; i++) {
                 try {
-                    if (testMode && processedTrades >= 10) {
-                        return false;
+
+                    if (testMode && processedTrades >= 3) {
+                        break;
                     }
-                    
-                    if (breakLoop && !forceAll) {
-                        console.log(`Skipping remaining trades - already processed the latest trades`);
-                        return false;
+                    if (consecutiveMatchingTrades >= 3 && !forceAll) {
+                        break;
                     }
-                    
+
+                    const tradeCard = tradeCards[i];
                     const tradeId = $(tradeCard).attr('id');
-                    if (!tradeId) {
-                        return;
-                    }
-                    
-                    const tradeDate = tradeId.substring(0, 10); // Extract date from ID
-                    
-                    // Trade ID format = 2025-03-07-NJD-PIT
-                    const tradeIdParts = tradeId.split('-');
-                    if (tradeIdParts.length < 5) {
-                        console.log(`Trade ID format unexpected: ${tradeId}`);
-                        return;
-                    }
-                    
-                    const team1Code = normalizeTeamCode(tradeIdParts[3]);
-                    const team2Code = normalizeTeamCode(tradeIdParts[4]);
-                    
                     const teamLists = $(tradeCard).find('ul.list-none');
-                    
-                    if (teamLists.length !== 2) {
-                        console.log(`Unexpected number of team lists: ${teamLists.length}`);
-                        return;
+                    let tradePlayers = [];
+                    let team1Code, team2Code;
+                    let tradeDate;
+
+                    if (teamLists.length === 2) {
+                       // Expected Trade ID format 2025-03-07-NJD-BOS
+                        tradeDate = tradeId.substring(0, 10);
+                        const tradeIdParts = tradeId.split('-');
+                        team1Code = normalizeTeamCode(tradeIdParts[3]);
+                        team2Code = normalizeTeamCode(tradeIdParts[4]);
+                        
+                        const teamLists = $(tradeCard).find('ul.list-none');
+                        
+                        $(teamLists[0]).find('a[href^="/players/"]').each((j, playerLink) => {
+                            const playerUrl = $(playerLink).attr('href');
+                            if (!playerUrl) return;
+                            
+                            const playerSlug = playerUrl.split('/').pop();
+                            const specialCase = correctPlayerName(playerSlug);
+                            let firstName, lastName;
+                            
+                            if (specialCase) {
+                                firstName = specialCase.firstName;
+                                lastName = specialCase.lastName;
+                            } else {
+                                const nameParts = playerSlug.split('-');
+                                if (nameParts.length < 2) return;
+                                
+                                firstName = capitalizeFirst(nameParts[0]);
+                                lastName = capitalizeFirst(nameParts[1]);
+                            }
+                            
+                            tradePlayers.push({
+                                player_id: playerSlug,
+                                firstName,
+                                lastName,
+                                newTeam: team1Code,
+                                oldTeam: team2Code,
+                                date: tradeDate
+                            });
+                        });
+                        
+                        $(teamLists[1]).find('a[href^="/players/"]').each((j, playerLink) => {
+                            const playerUrl = $(playerLink).attr('href');
+                            if (!playerUrl) return;
+                            
+                            const playerSlug = playerUrl.split('/').pop();
+                            const specialCase = correctPlayerName(playerSlug);
+                            let firstName, lastName;
+                            
+                            if (specialCase) {
+                                firstName = specialCase.firstName;
+                                lastName = specialCase.lastName;
+                            } else {
+                                const nameParts = playerSlug.split('-');
+                                if (nameParts.length < 2) return;
+                                
+                                firstName = capitalizeFirst(nameParts[0]);
+                                lastName = capitalizeFirst(nameParts[1]);
+                            }
+                            
+                            tradePlayers.push({
+                                player_id: playerSlug,
+                                firstName,
+                                lastName,
+                                newTeam: team2Code,
+                                oldTeam: team1Code,
+                                date: tradeDate
+                            });
+                        });
+
+                    } else if (teamLists.length > 2) {
+                        tradePlayers = await processMultiTeamTrade($, tradeCard, tradeId, db);
                     }
                     
-                    const tradePlayers = [];
+                    if (tradePlayers.length === 0) {
+                        continue;
+                    }
+
+                    let tradeNeedsProcessing = false;
+                    const playersToUpdate = [];
                     
-                    $(teamLists[0]).find('a[href^="/players/"]').each((j, playerLink) => {
-                        const playerUrl = $(playerLink).attr('href');
-                        if (!playerUrl) return;
+                    for (const player of tradePlayers) {
+                        const normalizedFirstName = player.firstName.replace(/[.'"-]/g, '').toLowerCase();
+                        const normalizedLastName = player.lastName.replace(/[.'"-]/g, '').toLowerCase();
+
+                        const { results: matches } = await db.query(
+                            `SELECT player_id, years_left_current, years_left_next, aav_current, aav_next, short_code, position 
+                            FROM players 
+                            WHERE player_id = ? 
+                            OR (
+                                (REPLACE(first_name, '.', '')) = ? 
+                                AND (REPLACE(last_name, '.', '')) = ?
+                            )`,
+                            [player.player_id, normalizedFirstName, normalizedLastName]
+                        );
+
+                        const existingPlayer = matches[0];
                         
-                        const playerSlug = playerUrl.split('/').pop();
-                        const nameParts = playerSlug.split('-');
-                        if (nameParts.length < 2) return;
-                        
-                        const firstName = capitalizeFirst(nameParts[0]);
-                        const lastName = capitalizeFirst(nameParts[1]);
-                        
-                        tradePlayers.push({
-                            player_id: playerSlug,
-                            firstName,
-                            lastName,
-                            newTeam: team1Code,
-                            oldTeam: team2Code,
-                        });
-                    });
+                        if (existingPlayer) {
+                            if (existingPlayer.short_code !== player.newTeam || forceAll) {
+                                tradeNeedsProcessing = true;
+                                playersToUpdate.push({
+                                    ...player,
+                                    exists: true
+                                });
+                            } 
+                        } else {
+                            playersToUpdate.push({
+                                ...player,
+                                exists: false
+                            });
+                        }
+                    }
                     
-                    $(teamLists[1]).find('a[href^="/players/"]').each((j, playerLink) => {
-                        const playerUrl = $(playerLink).attr('href');
-                        if (!playerUrl) return;
-                        
-                        const playerSlug = playerUrl.split('/').pop();
-                        const nameParts = playerSlug.split('-');
-                        if (nameParts.length < 2) return;
-                        
-                        const firstName = capitalizeFirst(nameParts[0]);
-                        const lastName = capitalizeFirst(nameParts[1]);
-                        
-                        tradePlayers.push({
-                            player_id: playerSlug,
-                            firstName,
-                            lastName,
-                            newTeam: team2Code,
-                            oldTeam: team1Code,
-                        });
-                    });
-                    
-                    if (tradePlayers.length > 0) {
-                        trades.push({
+                    if (!tradeNeedsProcessing && !forceAll) {
+                        consecutiveMatchingTrades++;
+                        continue;
+                    } else {
+                        consecutiveMatchingTrades = 0;
+                        tradesToProcess.push({
                             tradeId,
                             team1: team1Code,
                             team2: team2Code,
-                            players: tradePlayers,
-
+                            players: playersToUpdate,
+                            date: tradeDate
                         });
+                        
                         processedTrades++;
                     }
+                    
                 } catch (err) {
                     console.error(`Error processing trade card: ${err.message}`);
                 }
-            });
-            
-            const logs = [];
-            const reversedTrades = [...trades].reverse();
+            }
 
+            const logs = [];
+            const reversedTrades = [...tradesToProcess].reverse();
+            
             for (const trade of reversedTrades) {
                 for (const player of trade.players) {
                     try {
-                        const { results: [existingPlayer] } = await db.query(
-                            'SELECT * FROM players WHERE player_id = ?',
-                            [player.player_id]
-                        );
-                        
-                        if (existingPlayer) {
+                        if (player.exists) {
                             await db.query(
                                 `UPDATE players 
                                 SET short_code = ?,
@@ -152,16 +210,16 @@ export const scrapeTradesRoute = {
                                 player: `${player.firstName} ${player.lastName}`,
                                 oldTeam: player.oldTeam,
                                 newTeam: player.newTeam,
-                                date: trade.tradeDate,
+                                date: player.date,
                             });
-                        
-                        } else {
+                        } else if (!player.exists) {
                             logs.unshift({
                                 status: 'skipped',
                                 player: `${player.firstName} ${player.lastName}`,
                                 oldTeam: player.oldTeam,
                                 newTeam: player.newTeam,
-                                date: trade.tradeDate,
+                                date: player.date,
+                                reason: 'Player not found in database'
                             });
                         }
                     } catch (err) {
@@ -182,6 +240,7 @@ export const scrapeTradesRoute = {
                 updates: logs.filter(r => r.status === 'updated').length,
                 skipped: logs.filter(r => r.status === 'skipped').length,
                 errors: logs.filter(r => r.status === 'error').length,
+                tradesProcessed: processedTrades
             };
 
         } catch (err) {
@@ -202,17 +261,98 @@ const normalizeTeamCode = (teamCode) => {
     return codeMap[teamCode] || teamCode;
 };
 
-function extractTeamCode(html) {
-    const teamMatches = html.match(/\b(ANA|ARI|BOS|BUF|CGY|CAR|CHI|COL|CBJ|DAL|DET|EDM|FLA|LAK|LA|MIN|MTL|NSH|NJD|NJ|NYI|NYR|OTT|PHI|PIT|SJS|SJ|SEA|STL|TBL|TB|TOR|VAN|VGK|WSH|WPG)\b/i);
-    
-    if (teamMatches && teamMatches[0]) {
-        return teamMatches[0].toUpperCase();
-    }
-    
-    return null;
-}
-
 function capitalizeFirst(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+async function processMultiTeamTrade($, tradeCard, tradeId, db) {
+    const tradeDate = tradeId.substring(0, 10);
+    const tradePlayers = [];
+    const teamLists = $(tradeCard).find('ul.list-none');
+    
+    const playerQueries = [];
+    
+    for (let teamIndex = 0; teamIndex < teamLists.length; teamIndex++) {
+        const teamList = teamLists[teamIndex];   
+        const teamSection = $(teamList).closest('div[style*="background-image"]');
+        const teamLogoImg = teamSection.find('img').first();
+        
+        let teamCode;
+        if (teamLogoImg.length && teamLogoImg.attr('alt')) {
+            teamCode = teamLogoImg.attr('alt');
+        }
+        
+        teamCode = normalizeTeamCode(teamCode);
+        $(teamList).find('a[href^="/players/"]').each((j, playerLink) => {
+            if ($(playerLink).closest('button').length > 0) {
+                return; // player flipped for salary retention
+            }
+            
+            const playerSlug = $(playerLink).attr('href');
+            if (!playerSlug) return;
+            
+            const specialCase = correctPlayerName(playerSlug);
+            let firstName, lastName;
+            
+            if (specialCase) {
+                firstName = specialCase.firstName;
+                lastName = specialCase.lastName;
+            } else {
+                const nameParts = playerSlug.split('-');
+                if (nameParts.length < 2) return;
+                
+                firstName = capitalizeFirst(nameParts[0]);
+                lastName = capitalizeFirst(nameParts[1]);
+            }
+            
+            playerQueries.push({
+                playerSlug,
+                firstName,
+                lastName,
+                newTeam: teamCode,
+                date: tradeDate
+            });
+        });
+    }
+    
+    for (const query of playerQueries) {
+        try {
+            const { results } = await db.query(
+                'SELECT short_code FROM players WHERE player_id = ?',
+                [query.playerSlug]
+            );
+            
+            if (results.length > 0) {
+                tradePlayers.push({
+                    player_id: query.playerSlug,
+                    firstName: query.firstName,
+                    lastName: query.lastName,
+                    newTeam: query.newTeam,
+                    oldTeam: results[0].short_code,
+                    date: tradeDate
+                });
+            }
+        } catch (err) {
+            console.error(`Error checking player ${query.firstName} ${query.lastName}:`, err);
+        }
+    }
+    return tradePlayers;
+}
+
+function correctPlayerName(playerSlug) {
+    // Known corrections for problematic player IDs
+    const corrections = {
+        'j-t-miller': { firstName: 'J.T.', lastName: 'Miller' },
+        'drew-o-connor': { firstName: 'Drew', lastName: "O'Connor" },
+        'logan-o-connor': { firstName: 'Logan', lastName: "O'Connor" },
+        'ryan-o-reilly': { firstName: 'Ryan', lastName: "O'Reilly" },
+        'pierre-luc-dubois': { firstName: 'Pierre-Luc', lastName: 'Dubois' },
+        'a-j-greer': { firstName: 'A.J.', lastName: 'Greer' },
+        'p-o-joseph': { firstName: 'P.O.', lastName: 'Joseph' },
+        'k-andre-miller': { firstName: 'K\'Andre', lastName: 'Miller' },
+        'j-j-moser': { firstName: 'J.J.', lastName: 'Moser' },
+    };
+    
+    return corrections[playerSlug];
 }

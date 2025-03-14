@@ -75,12 +75,7 @@ export class PlayerDatabaseComponent {
       this.sortingService.sortColumn = 'last_name';
       this.sortingService.sortDirection = 'asc';
       this.league_id = params.get('league_id')!;
-
-      this.playerService.getAllPlayers(this.league_id)
-        .subscribe(response => {
-          this.allPlayers = response.players;
-          this.filterPlayers();
-      });
+      this.fetchPlayers(this.league_id);
 
       if (this.globalService.loggedInTeam) {
         this.fetchFAs(this.globalService.loggedInTeam);
@@ -102,6 +97,14 @@ export class PlayerDatabaseComponent {
           this.fa_to_use = this.fa_picks[0].asset_id.toString();
         }
       });
+  }
+
+  async fetchPlayers(league_id: string): Promise<void> {
+    this.playerService.getAllPlayers(this.league_id)
+      .subscribe(response => {
+        this.allPlayers = response.players;
+        this.filterPlayers();
+    });
   }
 
   faInRange(fa: FA_Pick): boolean {
@@ -183,8 +186,17 @@ export class PlayerDatabaseComponent {
   }
 
   generateID(first_name: string, last_name: string): string {
-    const id = first_name.toLowerCase().replace(/\s+/g, '') + '-' + last_name.toLowerCase().replace(/\s+/g, '');
-    console.log(id)
+    const processedFirstName = first_name
+      .toLowerCase()
+      .replace(/\./g, '')
+      .replace(/\s+/g, '');
+  
+    const processedLastName = last_name
+      .toLowerCase()
+      .replace(/'/g, '-')
+      .replace(/\./g, '')
+      .replace(/\s+/g, '-');
+    const id = processedFirstName + '-' + processedLastName;
     return id;
   }
 
@@ -238,8 +250,8 @@ export class PlayerDatabaseComponent {
           let action = 'add-player';
           this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action, message);
 
-          //this.fetchFAs(this.globalService.loggedInTeam);
-          this.ngOnInit;
+          this.fetchPlayers(this.league_id);
+          this.fetchFAs(this.globalService.loggedInTeam);
           this.toastService.showToast(message, true);
         }
       },
@@ -281,7 +293,7 @@ export class PlayerDatabaseComponent {
         next: (response) => {
           
           this.toastService.showToast(message, true);
-          console.log('Changes saved.', response);
+          this.fetchPlayers(this.league_id);
 
           this.formSubmitted = true;
           setTimeout(() => {
@@ -297,9 +309,8 @@ export class PlayerDatabaseComponent {
       if (this.globalService.loggedInUser) {
         this.globalService.recordAction(this.league_id, this.globalService.loggedInUser?.user_name, action_type, message);
       }
-      
+    
       this.closeModal();
-      this.ngOnInit();
   }
 
   contractFormSubmit(event: Event) {
@@ -325,6 +336,7 @@ export class PlayerDatabaseComponent {
         next: (response) => {
           
           this.toastService.showToast(message, true);
+          this.fetchPlayers(this.league_id); 
 
           this.formSubmitted = true;
           setTimeout(() => {
@@ -342,7 +354,6 @@ export class PlayerDatabaseComponent {
       }
       
      this.closeModal();
-     this.ngOnInit();
   }
 
   addContract(): void {
@@ -379,31 +390,34 @@ export class PlayerDatabaseComponent {
   }
 
   syncPlayers(forceAll: boolean): void {
+    this.isLoading = true;
     this.displaying = 'contracts';
     const today = this.globalService.getToday();
     const year = this.globalService.league?.current_season ?? 0;
-    this.isLoading = true;
+    let inOffseason = false;
+    if (this.globalService.league) {
+      inOffseason = this.globalService.league.inOffseason;
+    }
     
     forkJoin({
-      contracts: this.playerService.scrapeContracts(today, forceAll),
+      contracts: this.playerService.scrapeContracts(today, forceAll, inOffseason),
       trades: this.playerService.scrapeTrades(today, forceAll, year)
     }).subscribe({
       next: (results) => {
         this.scrapedContracts = results.contracts;
         this.scrapedTrades = results.trades;
         this.isLoading = false;
+        this.fetchPlayers(this.league_id);
         
         if (this.globalService.loggedInUser) {
           const contractsCount = this.scrapedContracts.rows.length || 0;
           const tradesCount = this.scrapedTrades.rows.length || 0;
           
           if (contractsCount > 0 || tradesCount > 0) {
-            let message = 'Database Sync: ';
-            
+            let message = 'Database Sync: ';     
             if (contractsCount > 0) {
               message += `${contractsCount} contracts updated`;
             }
-            
             if (tradesCount > 0) {
               message += contractsCount > 0 ? ` and ${tradesCount} trades processed` : `${tradesCount} trades processed`;
             }
@@ -438,7 +452,6 @@ export class PlayerDatabaseComponent {
   closeModal() {
     this.modalRef.hide();
     this.resetForm();
-    this.resetSearch();
     this.addNextContract = false;
   }
 

@@ -18,13 +18,15 @@ export const addDropRoute = {
             await db.query(updateQuery, [last_updated, updated_by, player_id]);
 
             if (action === 'add') {
-                const updateFAQuery = `
+                if (fa_used) {
+                    const updateFAQuery = `
                     UPDATE fa_picks
                     SET player_taken = ?
                     WHERE asset_id = ?`;
                 
                 result = await db.query(updateFAQuery, [player_id, fa_used]);
-                    
+                }
+    
                 const insertQuery = `
                 INSERT INTO player_owned_by (player_id, league_id, team_id, isRookie)
                 VALUES (?, ?, ?, ?)

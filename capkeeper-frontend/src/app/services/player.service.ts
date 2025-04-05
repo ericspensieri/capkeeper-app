@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Player, Draft_Pick, Log, Log_Row } from '../types';
+import { Player, Draft_Pick, Log, Draft } from '../types';
 
 @Injectable({
   providedIn: 'root'
@@ -11,6 +11,21 @@ export class PlayerService {
   constructor(
     private http: HttpClient
   ) { }
+
+  generateID(first_name: string, last_name: string): string {
+    const processedFirstName = first_name
+      .toLowerCase()
+      .replace(/\./g, '')
+      .replace(/\s+/g, '');
+  
+    const processedLastName = last_name
+      .toLowerCase()
+      .replace(/'/g, '-')
+      .replace(/\./g, '')
+      .replace(/\s+/g, '-');
+    const id = processedFirstName + '-' + processedLastName;
+    return id;
+  }
 
   getAllPlayers(league_id: string): Observable<{ players: Player[] }> {
     const url = `api/${league_id}/players`;
@@ -23,10 +38,22 @@ export class PlayerService {
     return this.http.get<{ player: Player }>(url, { params });
   }
   
-  getDraftByYear(league_id: string, year: number): Observable<{ draft: Draft_Pick[] }> {
+  getDraftByYear(league_id: string, year: number): Observable<{ draftPicks: Draft_Pick[] }> {
     const url = `api/${league_id}/draft`;
     const params = new HttpParams().set('year', year);
-    return this.http.get<{ draft: Draft_Pick[] }>(url, { params });
+    return this.http.get<{ draftPicks: Draft_Pick[] }>(url, { params });
+  }
+
+  getDrafts(league_id: string, year: number): Observable<{ drafts: Draft[], draftPicks: Draft_Pick[] }> {
+    const url = `api/${league_id}/draft`;
+    const params = new HttpParams().set('year', year);
+    return this.http.get<{ drafts: Draft[], draftPicks: Draft_Pick[] }>(url, { params });
+  }
+
+  getDraftById(league_id: string, draft_id: string): Observable<{ draft: Draft, draftPicks: Draft_Pick[] }> {
+    const url = `api/${league_id}/draft`;
+    const params = new HttpParams().set('draft_id', draft_id);
+    return this.http.get<{ draft: Draft, draftPicks: Draft_Pick[] }>(url, { params });
   }
 
   getProtectionSheet(league_id: string, team_id: string): Observable<{ players: Player[] }> {

@@ -8,6 +8,7 @@ import { ModalModule } from 'ngx-bootstrap/modal';
 import { TradeProposalComponent } from './components/trade-proposal/trade-proposal.component';
 import { TradeReviewComponent } from './components/trade-review/trade-review.component';
 import { TradeAssetPipe } from './pipes/trade-assets.pipe';
+import { TradeService } from './services/trade.service';
 
 const routes: Routes = [
   { path: 'propose', component: TradeProposalComponent },
@@ -18,7 +19,7 @@ const routes: Routes = [
   declarations: [
     TradeProposalComponent,
     TradeReviewComponent,
-    TradeAssetPipe
+    TradeAssetPipe,
   ],
   imports: [
     CommonModule,
@@ -27,10 +28,13 @@ const routes: Routes = [
     ModalModule,
     RouterModule.forChild(routes)
   ],
+  providers: [ 
+    TradeService
+  ],
   exports: [
     TradeProposalComponent,
     TradeReviewComponent,
-    TradeAssetPipe
+    TradeAssetPipe,
   ]
 })
 export class TradeModule { }

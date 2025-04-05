@@ -4,7 +4,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
   selector: 'app-toast',
   standalone: false,
   template: `
-    <div *ngIf="isVisible" id="toast" class="toast fixed bottom-4 right-4 w-auto max-w-lg p-4 mb-4 flex items-center justify-between text-gray-500 bg-white rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800" role="alert">
+    <div *ngIf="isVisible" id="toast" class="z-50 toast fixed bottom-4 right-4 w-auto max-w-lg p-4 mb-4 flex items-center justify-between text-gray-500 bg-white rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800" role="alert">
       <!-- Success Icon -->
       <div *ngIf="isSuccessful" class="flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-400 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200 mr-3">
         <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">

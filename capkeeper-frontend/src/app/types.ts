@@ -112,6 +112,7 @@ export interface Draft {
     type: string,
     status: string,
     draft_order: Team[],
+    draft_picks: Draft_Pick[]
 }
 
 export interface Draft_Pick {

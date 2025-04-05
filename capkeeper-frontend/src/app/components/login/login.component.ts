@@ -31,7 +31,7 @@ export class LoginComponent implements OnInit {
     private teamService: TeamService,
   ) { 
     initializeApp(environment.firebase);
-    this.initIdleTimeout(); 
+    this.initIdleTimeout();
   }
 
   ngOnInit() {

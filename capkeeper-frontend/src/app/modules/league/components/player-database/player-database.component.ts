@@ -185,21 +185,6 @@ export class PlayerDatabaseComponent {
     this.filterPlayers();
   }
 
-  generateID(first_name: string, last_name: string): string {
-    const processedFirstName = first_name
-      .toLowerCase()
-      .replace(/\./g, '')
-      .replace(/\s+/g, '');
-  
-    const processedLastName = last_name
-      .toLowerCase()
-      .replace(/'/g, '-')
-      .replace(/\./g, '')
-      .replace(/\s+/g, '-');
-    const id = processedFirstName + '-' + processedLastName;
-    return id;
-  }
-
   validatePickup(player: Player): boolean {
     return this.capIsValid(player) && this.contractIsValid();
   }
@@ -268,7 +253,7 @@ export class PlayerDatabaseComponent {
 
     const submissionData = {
       action: action,
-      player_id: action === 'edit' ? this.selected.player_id : this.generateID(this.formData.first_name, this.formData.last_name),
+      player_id: action === 'edit' ? this.selected.player_id : this.playerService.generateID(this.formData.first_name, this.formData.last_name),
       first_name: this.formData.first_name,
       last_name: this.formData.last_name,
       position: this.formData.position,

@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Team, League, NHL_Team, User, Activity, Asset, Trade, FA_Pick, Draft_Pick, Season } from '../types';
 import { HttpParams, HttpClient } from '@angular/common/http';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd, Event } from '@angular/router';
 import { TeamService } from './team.service';
 import { firstValueFrom } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root', 
@@ -21,12 +22,19 @@ export class GlobalService {
   league: League | null = null;
   teams: Team[] = [];
   nhl_teams: NHL_Team[] = [];
+  isDraftRoom: boolean = false;
 
   constructor(
     private teamService: TeamService,
     private http: HttpClient,
     private router: Router
-  ) { }
+  ) {
+    this.router.events.pipe(
+      filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isDraftRoom = event.url.includes('/draft/live/');
+    });
+  }
 
   openSession(email: string): Observable<{ userInfo: User }> {
     const url = 'api/login';

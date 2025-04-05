@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { GlobalService } from './services/global.service';
 import { getAuth, onAuthStateChanged, User, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd, Event } from '@angular/router';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +13,18 @@ import { Router } from '@angular/router';
 export class AppComponent implements OnInit {
   title = 'capkeeper-app';
   user: User | null = null;
+  isDraftRoom = false;
 
   constructor(
     public globalService: GlobalService,
     private router: Router
-  ) {}
+  ) {
+    this.router.events.pipe(
+      filter((event: Event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.isDraftRoom = event.url.includes('/draft/live/');
+    });
+  }
 
   ngOnInit(): void {
     const auth = getAuth();
@@ -62,5 +70,4 @@ export class AppComponent implements OnInit {
         this.globalService.loading = false;
       });
   }
-  
 }

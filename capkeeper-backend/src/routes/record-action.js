@@ -6,14 +6,14 @@ export const recordActionRoute = {
     path: '/api/record-action',
     handler: async (req, h) => {
         try {
-            const { league_id, message, date, time, user_id, action_type, trade_id } = req.payload;
+            const { league_id, message, date, time, user_id, action_type, trade_id, sheet_id } = req.payload;
             let result;
             
             const query = `
-            INSERT INTO recent_activity (league_id, message, date, time, user_id, action_type, trade_id)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO recent_activity (league_id, message, date, time, user_id, action_type, trade_id, sheet_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             `;
-            result = await db.query(query, [league_id, message, date, time, user_id, action_type, trade_id]);
+            result = await db.query(query, [league_id, message, date, time, user_id, action_type, trade_id, sheet_id]);
             return h.response(result).code(201);
 
         }

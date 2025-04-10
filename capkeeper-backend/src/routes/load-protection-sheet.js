@@ -7,18 +7,33 @@ export const loadProtectionsRoute = {
     handler: async (req, h) => {
         const team_id = req.params.team_id;
         const league_id = req.params.league_id;
+        const year = req.query.year;
 
         try {
             const { results: players } = await db.query( 
-                `SELECT p.*, ps.onBench, ps.isFranchise
-                FROM players p JOIN protection_sheets ps 
-                    ON p.player_id = ps.player_id
+                `SELECT p.*, pp.onBench, pp.isFranchise
+                FROM protection_sheets ps JOIN protected_players pp
+                    ON ps.sheet_id = pp.sheet_id
+                    JOIN players p
+                    ON p.player_id = pp.player_id
                 WHERE ps.league_id = ?
-                    AND ps.team_id = ? `,
-                 [league_id, team_id]
+                    AND ps.team_id = ?
+                    AND ps.year = ?
+                    AND pp.isProtected = 1
+                    `, [league_id, team_id, year]
             );
 
-            return { players };
+            const { results: sheets } = await db.query( 
+                `SELECT * from protection_sheets
+                WHERE league_id = ?
+                    AND team_id = ?
+                    AND year = ?
+                LIMIT 1
+                    `, [league_id, team_id, year]
+            );
+            const sheet = sheets[0]
+
+            return { players, sheet };
 
         } catch (err) {
             console.error(err);

@@ -1,4 +1,4 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component, TemplateRef} from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GlobalService } from '@app/services/global.service';
 import { TeamService } from '@app/services/team.service';
@@ -80,7 +80,6 @@ export class TradeProposalComponent {
     });
   }
   
-    
   setRequestor(team_id: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.teamService.getRosterByTeam(this.league_id, team_id).subscribe(
@@ -469,6 +468,7 @@ export class TradeProposalComponent {
     this.http.post('api/send-trade', payload)
     .subscribe({
       next: (response) => {
+
         this.router.navigate(['/' + this.league_id + '/team/' + this.globalService.loggedInTeam?.team_id]);
           this.toastService.showToast('Your trade request has been sent!.', true)
       },

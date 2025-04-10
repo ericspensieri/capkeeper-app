@@ -656,18 +656,11 @@ export class CommissionerHubComponent {
     }
   }
 
-  logChange(): void {
-    console.log('Draft order', this.draftOrder);
+  updateDraftOrder(newOrder: any[]) {
+    this.draftOrder = newOrder;
+    console.log(this.draftOrder);
   }
-
-  updateDraftOrder(team_id: string, index: number) {
-    const selectedTeam = this.allTeams.find(team => team.team_id === team_id);
-    if (selectedTeam) {
-      this.draftOrder[index] = selectedTeam;
-    }
-    console.log('Order', this.draftOrder)
-  }
-
+  
   orderIsSet(): boolean {
     if (!this.draftOrder || this.draftOrder.length !== this.allTeams.length) {
       return false;

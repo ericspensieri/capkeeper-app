@@ -311,270 +311,270 @@
    </div>
      
     
-   <!-- New Player Modal -->
-   <ng-template #newPlayerModal id="newPlayerModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-      <div class="relative w-full max-w-2xl max-h-full">
-            <form (ngSubmit)="playerFormSubmit($event)" #playerForm="ngForm" [attr.data-action]="'add'" class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+<!-- New Player Modal -->
+<ng-template #newPlayerModal id="newPlayerModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+   <div class="relative w-full max-w-2xl max-h-full">
+         <form (ngSubmit)="playerFormSubmit($event)" #playerForm="ngForm" [attr.data-action]="'add'" class="relative bg-white rounded-lg shadow dark:bg-gray-700">
 
-               <div class="flex items-start justify-between p-4 rounded-t">
-                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                     Create New Player
-                  </h3>
-                  <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
-                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                  </svg>
-                  <span class="sr-only">Close modal</span>
-               </button>
-               </div>
+            <div class="flex items-start justify-between p-4 rounded-t">
+               <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Create New Player
+               </h3>
+               <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
+               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+               </svg>
+               <span class="sr-only">Close modal</span>
+            </button>
+            </div>
 
-               <div class="p-6 space-y-6">
-                  <div class="grid grid-cols-6 gap-6">
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
-                           <input type="text" [(ngModel)]="formData.first_name" name="first-name" id="first-name" class="shadow-sm bg-gray-50  text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
-                           <input type="text" [(ngModel)]="formData.last_name" name="last-name" id="last-name" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="position" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position</label>
-                           <select name="position" [(ngModel)]="formData.position" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                              <option [value]="''">Select position...</option>
-                              <option value="F">Forward</option>
-                              <option value="D">Defense</option>
-                              <option value="G">Goalie</option>
-                           </select>
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                        <label for="nhl_team" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">NHL Team</label>
-                        <select name="nhl_team" [(ngModel)]="formData.short_code"
-                              class="select-dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                        <option [value]="''">Select team...</option>
-                        <option *ngFor="let team of globalService.nhl_teams" [value]="team.short_code">{{ team.city }} {{ team.team_name }}</option>
+            <div class="p-6 space-y-6">
+               <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
+                        <input type="text" [(ngModel)]="formData.first_name" name="first-name" id="first-name" class="shadow-sm bg-gray-50  text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
+                        <input type="text" [(ngModel)]="formData.last_name" name="last-name" id="last-name" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="position" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position</label>
+                        <select name="position" [(ngModel)]="formData.position" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                           <option [value]="''">Select position...</option>
+                           <option value="F">Forward</option>
+                           <option value="D">Defense</option>
+                           <option value="G">Goalie</option>
                         </select>
-                     </div>                  
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                     <label for="nhl_team" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">NHL Team</label>
+                     <select name="nhl_team" [(ngModel)]="formData.short_code"
+                           class="select-dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                     <option [value]="''">Select team...</option>
+                     <option *ngFor="let team of globalService.nhl_teams" [value]="team.short_code">{{ team.city }} {{ team.team_name }}</option>
+                     </select>
+                  </div>                  
+               </div>
+            </div>
+
+            <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse rounded-b">
+               <button 
+                  type="submit" 
+                  [disabled]="isButtonDisabled()"
+                  class="text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800"
+                  [ngClass]="{
+                     'bg-green-400 hover:bg-green-500 focus:ring-green-300': !isButtonDisabled(),
+                     'bg-green-300 cursor-not-allowed': isButtonDisabled()
+                  }" 
+                  >
+                  Create Player
+               </button>
+               <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
+            </div>
+      </form>
+   </div>
+</ng-template>
+
+<!-- Edit Player Modal -->
+<ng-template #editPlayerModal id="editTeamModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+   <div class="relative w-full max-w-2xl max-h-full">
+         <form (ngSubmit)="playerFormSubmit($event)" #playerForm="ngForm" [attr.data-action]="'edit'" class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+
+            <div class="flex items-start justify-between p-4 rounded-t">
+               <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Edit Player Info for: <span class="bg-gray-100 text-gray-600 font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ selected.first_name }} {{ selected.last_name }}</span>
+               </h3>
+               <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
+               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+               </svg>
+               <span class="sr-only">Close modal</span>
+            </button>
+            </div>
+
+            <div class="p-6 space-y-6">
+               <div class="grid grid-cols-6 gap-6">
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
+                        <input type="text" [(ngModel)]="formData.first_name" name="first-name" id="first-name" class="shadow-sm bg-gray-50  text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" [placeholder]="selected.first_name" required="">
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
+                        <input type="text" [(ngModel)]="formData.last_name" name="last-name" id="last-name" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" [placeholder]="selected.last_name" required="">
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="position" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position</label>
+                        <select name="position" [(ngModel)]="formData.position" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                           <option [selected]="selected.position === 'F'" value="F">Forward</option>
+                           <option [selected]="selected.position === 'D'" value="D">Defense</option>
+                           <option [selected]="selected.position === 'G'" value="G">Goalie</option>
+                           </select>
+                  </div>
+                  <div class="col-span-6 sm:col-span-3">
+                        <label for="nhl_team" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">NHL Team</label>
+                        <select name="nhl_team" [(ngModel)]="formData.short_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                           <option *ngFor="let team of globalService.nhl_teams" [value]="team.short_code" [selected]="selected.short_code === team.short_code">{{ team.city }} {{ team.team_name }}</option>
+                           </select>
                   </div>
                </div>
+            </div>
 
-               <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse rounded-b">
-                  <button 
-                     type="submit" 
-                     [disabled]="isButtonDisabled()"
-                     class="text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800"
-                     [ngClass]="{
-                        'bg-green-400 hover:bg-green-500 focus:ring-green-300': !isButtonDisabled(),
-                        'bg-green-300 cursor-not-allowed': isButtonDisabled()
-                     }" 
-                     >
-                     Create Player
-                  </button>
-                  <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
-               </div>
-         </form>
-      </div>
-   </ng-template>
+            <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse rounded-b">
+               <button type="submit" class="text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Save Changes</button>
+               <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
+            </div>
+      </form>
+   </div>
+</ng-template>
 
-   <!-- Edit Player Modal -->
-   <ng-template #editPlayerModal id="editTeamModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-      <div class="relative w-full max-w-2xl max-h-full">
-            <form (ngSubmit)="playerFormSubmit($event)" #playerForm="ngForm" [attr.data-action]="'edit'" class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-   
-               <div class="flex items-start justify-between p-4 rounded-t">
-                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                     Edit Player Info for: <span class="bg-gray-100 text-gray-600 font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{ selected.first_name }} {{ selected.last_name }}</span>
-                  </h3>
-                  <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
-                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                  </svg>
-                  <span class="sr-only">Close modal</span>
-               </button>
-               </div>
-   
-               <div class="p-6 space-y-6">
-                  <div class="grid grid-cols-6 gap-6">
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
-                           <input type="text" [(ngModel)]="formData.first_name" name="first-name" id="first-name" class="shadow-sm bg-gray-50  text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" [placeholder]="selected.first_name" required="">
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
-                           <input type="text" [(ngModel)]="formData.last_name" name="last-name" id="last-name" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" [placeholder]="selected.last_name" required="">
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="position" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position</label>
-                           <select name="position" [(ngModel)]="formData.position" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                              <option [selected]="selected.position === 'F'" value="F">Forward</option>
-                              <option [selected]="selected.position === 'D'" value="D">Defense</option>
-                              <option [selected]="selected.position === 'G'" value="G">Goalie</option>
-                            </select>
-                     </div>
-                     <div class="col-span-6 sm:col-span-3">
-                           <label for="nhl_team" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">NHL Team</label>
-                           <select name="nhl_team" [(ngModel)]="formData.short_code" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                              <option *ngFor="let team of globalService.nhl_teams" [value]="team.short_code" [selected]="selected.short_code === team.short_code">{{ team.city }} {{ team.team_name }}</option>
-                            </select>
-                     </div>
-                  </div>
-               </div>
-   
-               <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse rounded-b">
-                  <button type="submit" class="text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Save Changes</button>
-                  <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
-               </div>
-         </form>
-      </div>
-   </ng-template>
+<!-- Add To Roster Modal -->
+<ng-template #addPlayerModal id="addPlayerModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+   <div class="relative w-full max-w-2xl max-h-full">
+         <form class="relative bg-white rounded-lg shadow dark:bg-gray-700">
 
-   <!-- Add To Roster Modal -->
-   <ng-template #addPlayerModal id="addPlayerModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
-      <div class="relative w-full max-w-2xl max-h-full">
-            <form class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <div class="flex items-start justify-between p-4 rounded-t">
+               <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                  Add <span class="bg-gray-100 text-gray-600 font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{selected.first_name }} {{ selected.last_name }}</span>to your roster?
+               </h3>
+               <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
+               <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+               </svg>
+               <span class="sr-only">Close modal</span>
+            </button>
+            </div>
 
-               <div class="flex items-start justify-between p-4 rounded-t">
-                  <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
-                     Add <span class="bg-gray-100 text-gray-600 font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">{{selected.first_name }} {{ selected.last_name }}</span>to your roster?
-                  </h3>
-                  <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
-                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                  </svg>
-                  <span class="sr-only">Close modal</span>
-               </button>
-               </div>
-
-               <!-- Validation Timeline -->
-               <div class="p-6 space-y-6 md:w-[600px]">
-                  <div class="items-center justify-center">
-                     <ol class="flex items-center justify-center">
-                        <li class="relative w-full mb-6">
-                           <div class="flex items-center">
-                              <div 
-                                 class="z-10 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0"
-                                 [ngClass]="{'bg-green-400': contractIsValid(), 'bg-red-500': !contractIsValid()}">
-                                 <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
-                                 </svg>
-                              </div>
-                              <div class="flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>
-                           </div>
-                           <div class="mt-3">
-                              <h3 class="font-medium text-gray-900 dark:text-white">Contracts</h3>
-                           </div>
-                     </li>
+            <!-- Validation Timeline -->
+            <div class="p-6 space-y-6 md:w-[600px]">
+               <div class="items-center justify-center">
+                  <ol class="flex items-center justify-center">
                      <li class="relative w-full mb-6">
                         <div class="flex items-center">
-                           <div class="flex w-[50%] bg-gray-200 h-0.5 dark:bg-gray-700"></div>
-                           <div class="z-10 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0"
-                              [ngClass]="{'bg-green-400': capIsValid(selected), 'bg-red-500': !capIsValid(selected)}">
+                           <div 
+                              class="z-10 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0"
+                              [ngClass]="{'bg-green-400': contractIsValid(), 'bg-red-500': !contractIsValid()}">
                               <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17.345a4.76 4.76 0 0 0 2.558 1.618c2.274.589 4.512-.446 4.999-2.31.487-1.866-1.273-3.9-3.546-4.49-2.273-.59-4.034-2.623-3.547-4.488.486-1.865 2.724-2.899 4.998-2.31.982.236 1.87.793 2.538 1.592m-3.879 12.171V21m0-18v2.2"/>
-                               </svg>                               
-                            </div>
-                            <div class="flex w-[50%] bg-gray-200 h-0.5 dark:bg-gray-700"></div>
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m4 8h6m-6-4h6m4-8v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
+                              </svg>
+                           </div>
+                           <div class="flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>
                         </div>
                         <div class="mt-3">
-                            <h3 class="font-medium text-center text-gray-900 dark:text-white">Cap space</h3>
+                           <h3 class="font-medium text-gray-900 dark:text-white">Contracts</h3>
                         </div>
-                    </li>
-                     <li class="relative w-full mb-6">
-                        <div class="flex items-center">
-                              <div class="flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>
-                              <div *ngIf="validatePickup(selected)" class="z-10 bg-green-400 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0">
-                                    <svg class="w-5 h-5 text-white dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
-                                       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
-                                    </svg>
-                              </div>
-                              <div *ngIf="!validatePickup(selected)" class="z-10 bg-red-500 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0">
-                                 <svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                                  </svg>                                  
+                  </li>
+                  <li class="relative w-full mb-6">
+                     <div class="flex items-center">
+                        <div class="flex w-[50%] bg-gray-200 h-0.5 dark:bg-gray-700"></div>
+                        <div class="z-10 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0"
+                           [ngClass]="{'bg-green-400': capIsValid(selected), 'bg-red-500': !capIsValid(selected)}">
+                           <svg class="w-6 h-6 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 17.345a4.76 4.76 0 0 0 2.558 1.618c2.274.589 4.512-.446 4.999-2.31.487-1.866-1.273-3.9-3.546-4.49-2.273-.59-4.034-2.623-3.547-4.488.486-1.865 2.724-2.899 4.998-2.31.982.236 1.87.793 2.538 1.592m-3.879 12.171V21m0-18v2.2"/>
+                              </svg>                               
                            </div>
-                        </div>
-                        <div class="mt-3 text-right justify-end">
-                           <h3 *ngIf="validatePickup(selected)" class="font-medium text-gray-900 dark:text-white">Pickup is Valid</h3>
-                           <h3 *ngIf="!validatePickup(selected)" class="font-medium text-gray-900 dark:text-white">Pickup is Invalid</h3>
-                        </div>
-                     </li>
-                  </ol>
-
-                  <!-- FA Select Dropdown -->
-                  <div *ngIf="validatePickup(selected)">
-                     <div class="grid grid-cols-6 gap-6">
-                        <div class="col-span-6 sm:col-span-3">
-                           <label for="fa_pick" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                              FA Asset Used:
-                           </label>
-                           
-                           <div class="relative max-h-[200px] overflow-y-auto">
-                              <select
-                                 name="fa_pick"
-                                 [(ngModel)]="fa_to_use"
-                                 class="max-h-[200px] overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-400"
-                                 >
-                                 <ng-container *ngIf="fa_picks.length > 0; else noFaAvailable">
-                                    <option *ngFor="let pick of fa_picks" [value]="pick.asset_id">
-                                       FA Week {{ pick.week }} ({{ pick.year }})
-                                    </option>
-                                 </ng-container>
-
-                                 <!-- Dummy option when fa_picks is empty -->
-                                 <ng-template #noFaAvailable>
-                                    <option value="" disabled>--No FA available--</option>
-                                 </ng-template>
-                              </select>
+                           <div class="flex w-[50%] bg-gray-200 h-0.5 dark:bg-gray-700"></div>
+                     </div>
+                     <div class="mt-3">
+                           <h3 class="font-medium text-center text-gray-900 dark:text-white">Cap space</h3>
+                     </div>
+                  </li>
+                  <li class="relative w-full mb-6">
+                     <div class="flex items-center">
+                           <div class="flex w-full bg-gray-200 h-0.5 dark:bg-gray-700"></div>
+                           <div *ngIf="validatePickup(selected)" class="z-10 bg-green-400 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0">
+                                 <svg class="w-5 h-5 text-white dark:text-blue-300" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 12">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5.917 5.724 10.5 15 1.5"/>
+                                 </svg>
                            </div>
-                           
+                           <div *ngIf="!validatePickup(selected)" class="z-10 bg-red-500 flex items-center justify-center w-10 h-10 rounded-full ring-0 ring-white dark:ring-gray-900 shrink-0">
+                              <svg class="w-5 h-5 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
+                                 </svg>                                  
                         </div>
                      </div>
+                     <div class="mt-3 text-right justify-end">
+                        <h3 *ngIf="validatePickup(selected)" class="font-medium text-gray-900 dark:text-white">Pickup is Valid</h3>
+                        <h3 *ngIf="!validatePickup(selected)" class="font-medium text-gray-900 dark:text-white">Pickup is Invalid</h3>
+                     </div>
+                  </li>
+               </ol>
+
+               <!-- FA Select Dropdown -->
+               <div *ngIf="validatePickup(selected)">
+                  <div class="grid grid-cols-6 gap-6">
+                     <div class="col-span-6 sm:col-span-3">
+                        <label for="fa_pick" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                           FA Asset Used:
+                        </label>
+                        
+                        <div class="relative max-h-[200px] overflow-y-auto">
+                           <select
+                              name="fa_pick"
+                              [(ngModel)]="fa_to_use"
+                              class="max-h-[200px] overflow-y-auto bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-400"
+                              >
+                              <ng-container *ngIf="fa_picks.length > 0; else noFaAvailable">
+                                 <option *ngFor="let pick of fa_picks" [value]="pick.asset_id">
+                                    FA Week {{ pick.week }} ({{ pick.year }})
+                                 </option>
+                              </ng-container>
+
+                              <!-- Dummy option when fa_picks is empty -->
+                              <ng-template #noFaAvailable>
+                                 <option value="" disabled>--No FA available--</option>
+                              </ng-template>
+                           </select>
+                        </div>
+                        
+                     </div>
                   </div>
- 
-                  <!-- Warnings -->
-                  <div *ngIf="!contractIsValid()">
-                     <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
-                           <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                              <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                           </svg>
-                           <span class="sr-only">Info</span>
-                           <div>
-                              <span class="font-bold">Roster is Full!</span><br> You can't carry any more contracts. Visit your <a class="underline cursor-pointer hover:font-semibold" [routerLink]="['/', globalService.league?.league_id, 'team', globalService.loggedInTeam?.team_id]" (click)="closeModal()">team page</a> to make a roster move
-                           </div>
-                      </div>
-                  </div>
-   
-                  <div *ngIf="!capIsValid(selected)">
-                     <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+               </div>
+
+               <!-- Warnings -->
+               <div *ngIf="!contractIsValid()">
+                  <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
                         <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                           <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
                         </svg>
                         <span class="sr-only">Info</span>
                         <div>
-                          <span class="font-bold">Not enough cap space! (${{ globalService.loggedInTeam?.cap_space | number:'1.0-0' }}) </span><br> You don't have the cap space to add this player. Visit your <a class="underline cursor-pointer hover:font-semibold" [routerLink]="['/', globalService.league?.league_id, 'team', globalService.loggedInTeam?.team_id]" (click)="closeModal()">team page</a> to make a roster move.
+                           <span class="font-bold">Roster is Full!</span><br> You can't carry any more contracts. Visit your <a class="underline cursor-pointer hover:font-semibold" [routerLink]="['/', globalService.league?.league_id, 'team', globalService.loggedInTeam?.team_id]" (click)="closeModal()">team page</a> to make a roster move
                         </div>
+                     </div>
+               </div>
+
+               <div *ngIf="!capIsValid(selected)">
+                  <div class="flex items-center p-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 dark:border-red-800" role="alert">
+                     <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                     </svg>
+                     <span class="sr-only">Info</span>
+                     <div>
+                        <span class="font-bold">Not enough cap space! (${{ globalService.loggedInTeam?.cap_space | number:'1.0-0' }}) </span><br> You don't have the cap space to add this player. Visit your <a class="underline cursor-pointer hover:font-semibold" [routerLink]="['/', globalService.league?.league_id, 'team', globalService.loggedInTeam?.team_id]" (click)="closeModal()">team page</a> to make a roster move.
                      </div>
                   </div>
                </div>
             </div>
+         </div>
 
-            <div class="flex items-center px-6 pb-6 space-x-3 rtl:space-x-reverse rounded-b">
-               <button 
-                  type="submit" 
-                  (click)="addPlayer(selected, false); closeModal()" 
-                  class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800"
-                  [ngClass]="{
-                     'bg-green-400 hover:bg-green-500 focus:ring-green-300': validatePickup(selected) && faIsValid(),
-                     'bg-green-300 cursor-not-allowed': !validatePickup(selected) || !faIsValid()
-                 }" 
-                 [disabled]="!validatePickup(selected) || !fa_to_use">
-                     Add Player
-               </button>
-               <button type="submit" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
-            </div>
-         </form>
-      </div>
-   </ng-template>
+         <div class="flex items-center px-6 pb-6 space-x-3 rtl:space-x-reverse rounded-b">
+            <button 
+               type="submit" 
+               (click)="addPlayer(selected, false); closeModal()" 
+               class="text-white focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800"
+               [ngClass]="{
+                  'bg-green-400 hover:bg-green-500 focus:ring-green-300': validatePickup(selected) && faIsValid(),
+                  'bg-green-300 cursor-not-allowed': !validatePickup(selected) || !faIsValid()
+               }" 
+               [disabled]="!validatePickup(selected) || !fa_to_use">
+                  Add Player
+            </button>
+            <button type="submit" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
+         </div>
+      </form>
+   </div>
+</ng-template>
 
 <!-- Edit Contract Modal -->
 <ng-template #editContractModal id="editContractModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">

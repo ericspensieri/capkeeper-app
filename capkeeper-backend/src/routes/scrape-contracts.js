@@ -38,16 +38,29 @@ export const scrapeContractsRoute = {
                 
                 const row = rows[i];
                 const cells = $(row).find('td');
-                
+
                 const fullName = $(cells[0]).text().trim();
-                const [lastName, firstName] = fullName.split(', ');
+                let firstName, lastName;
+
+                if (fullName.includes(', ')) {
+                    [lastName, firstName] = fullName.split(', ');
+                } else {
+                    const nameParts = fullName.split(' ');
+                    firstName = nameParts[0];
+                    lastName = nameParts.slice(1).join(' ');
+                }
+
+                if (!firstName || !lastName) {
+                    console.log(`Skipping invalid name format: ${fullName}`);
+                    continue;
+                }
                 const contractType = $(cells[5]).text().trim();
                 
                 // Skip 2-way contracts
                 if (contractType.toLowerCase().includes('2-way')) {
                     continue;
                 }
-                
+
                 const player = {
                     player_id: `${firstName}-${lastName}`.toLowerCase(),
                     firstName: firstName.trim(),

@@ -1,0 +1,1187 @@
+<nav class="fixed top-0 z-50 w-full bg-gray-900 border-b border-gray-700">
+    <div class="px-3 py-3 lg:px-5 lg:pl-3">
+      <div class="flex items-center justify-between">
+        <!-- Left side - Logo and title -->
+        <div class="flex items-center justify-start rtl:justify-end">
+          <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar" aria-controls="logo-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-300 rounded-lg sm:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
+            <span class="sr-only">Open sidebar</span>
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+            </svg>
+          </button>
+          <img [src]="globalService.league?.picture" class="h-[45px] me-3" alt="League Logo" />
+          <div class="flex flex-col">
+            <div class="flex items-center">
+              <span class="self-center text-2xl font-semibold whitespace-nowrap text-white mr-2.5">{{ draft.year }} {{ globalService.capitalizeFirstLetter(draft.type) }} Draft</span>
+              <span *ngIf="status === 'ready'" class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-900 text-red-200">Not Started</span>
+              <span *ngIf="status === 'paused'" class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-red-900 text-red-200">Paused</span>
+              <span *ngIf="status === 'in-progress'" class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-yellow-800 text-yellow-200">In Progress</span>
+              <span *ngIf="status === 'complete'" class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-green-800 text-green-200">Complete</span>
+              <span *ngIf="testMode" class="ml-2 px-2.5 py-0.5 text-xs font-medium rounded-full bg-green-800 text-green-200">Test Mode is On</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right side controls -->
+        <div class="flex items-center space-x-3">
+          <!-- Current Pick Info -->
+          <div *ngIf="status === 'in-progress' || status === 'paused'" class="flex items-center mr-1">
+            <div class="bg-gray-800 rounded-lg py-1.5 px-3 text-gray-200 text-sm border border-gray-700">
+              <span class="font-medium">Pick {{currentRound}}.{{pickOfRound}}</span>
+              <span class="text-gray-400 ml-1">({{nextPick}} Overall)</span>
+            </div>
+          </div>
+  
+          <!-- Undo Button -->
+          <button [disabled]="status !== 'in-progress'" (click)="undoPick()" type="button" class="inline-flex items-center p-2 text-sm text-gray-200 bg-gray-700 rounded-lg hover:bg-gray-600 focus:ring-2 focus:outline-none focus:ring-gray-500">
+            <svg class="w-5 h-5 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+            </svg>
+            Undo
+          </button>
+          
+          <!-- Settings Dropdown -->
+          <div class="relative">
+            <button #settingsButton type="button" (click)="toggleSettingsDropdown()" class="p-2 text-gray-300 rounded-lg hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-600">
+              <svg class="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 0 1 0-.255c.007-.378-.138-.75-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />
+              </svg>
+            </button>
+            
+            <div #settingsDropdown [ngClass]="{'hidden': !showSettingsDropdown}" class="absolute right-0 mt-2 w-72 bg-gray-800 border border-gray-700 rounded-lg shadow-lg z-50">
+              <div class="p-4">
+                <h3 class="text-white text-lg font-medium mb-3">Settings</h3>
+                
+                <!-- Tet Mode Toggle -->
+                <div class="flex items-center justify-between mb-4">
+                    <label for="pick-clock-toggle" class="text-gray-300 font-medium">Test Mode</label>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                      <input type="checkbox" id="pick-clock-toggle" [(ngModel)]="testMode" class="sr-only peer">
+                      <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-400"></div>
+                    </label>
+                  </div>
+                
+                <!-- Pick Clock Toggle -->
+                <div class="flex items-center justify-between mb-4">
+                  <label for="pick-clock-toggle" class="text-gray-300 font-medium">Pick Clock</label>
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="pick-clock-toggle" [(ngModel)]="usePickClock" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-400"></div>
+                  </label>
+                </div>
+                
+                <!-- Pick Clock Input (only visible when toggle is on) -->
+                <div class="flex items-center justify-between mb-4" *ngIf="usePickClock">
+                  <label for="pick-clock-time" class="text-gray-300 font-medium">Time (minutes)</label>
+                  <div class="relative flex items-center max-w-[6rem]">
+                    <button (click)="decrementPickClock()" type="button" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-s-lg p-2 h-9 focus:ring-gray-700 focus:ring-2 focus:outline-none">
+                      <svg class="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 2">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h16"/>
+                      </svg>
+                    </button>
+                    <input 
+                      type="text" 
+                      id="pick-clock-time" 
+                      [value]="pickClockDefault / 60" 
+                      readonly
+                      class="bg-gray-700 border-x-0 border-gray-600 h-9 text-center text-white text-sm focus:ring-blue-500 focus:border-blue-500 block w-full py-1.5 cursor-not-allowed" 
+                      required 
+                    />
+                    <button (click)="incrementPickClock()" type="button" class="bg-gray-700 hover:bg-gray-600 border border-gray-600 rounded-e-lg p-2 h-9 focus:ring-gray-700 focus:ring-2 focus:outline-none">
+                      <svg class="w-3 h-3 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Refresh Players Button -->
+                <button (click)="refreshDraftRoom(true)" type="button" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                  <div class="flex items-center justify-center">
+                    <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Refresh Draft Room
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Mobile right sidebar toggle -->
+          <button data-drawer-target="right-sidebar" data-drawer-toggle="right-sidebar" aria-controls="right-sidebar" type="button" class="inline-flex items-center p-2 text-sm text-gray-300 rounded-lg sm:hidden hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
+            <span class="sr-only">Open right sidebar</span>
+            <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path clip-rule="evenodd" fill-rule="evenodd" d="M2 4.75A.75.75 0 012.75 4h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 4.75zm0 10.5a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zM2 10a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 10z"></path>
+            </svg>
+          </button>
+          
+          <!-- Start Draft Button -->
+          <button *ngIf="status === 'ready'" (click)="startDraft()" type="button" class="text-white bg-green-400 hover:bg-green-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center min-w-32">
+            Start Draft
+            <svg class="w-5 h-5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M8 5v14l11-7-11-7" />
+            </svg>
+          </button>
+          
+          <!-- Pause Draft Button -->
+          <button *ngIf="status === 'in-progress'" (click)="pauseDraft()" type="button" class="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center min-w-32">
+            Pause Draft
+            <svg class="w-5 h-5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke="currentColor" fill-rule="evenodd" d="M8 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H8Zm7 0a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-1Z" clip-rule="evenodd"/>
+            </svg>
+          </button>
+          
+          <!-- Resume Draft Button -->
+          <button *ngIf="status === 'paused'" (click)="startDraft()" type="button" class="text-white bg-green-400 hover:bg-green-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-center min-w-32">
+            Resume Draft
+            <svg class="w-5 h-5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M8 5v14l11-7-11-7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+</nav>
+  
+<!-- Left Sidebar -->
+<aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 flex flex-col">
+      <!-- Search bar with label and add button -->
+      <div class="mb-3">
+        <div class="flex items-center justify-between mb-2">
+          <label for="player-search" class="text-sm font-medium text-gray-900 dark:text-white">Find Players</label>
+          <a (click)="openModal(newPlayerModal)" class="inline-flex items-center text-xs font-medium text-green-500 hover:underline dark:text-green-400 cursor-pointer">
+            <svg class="w-3 h-3 mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 18">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 1v16M1 9h16"/>
+            </svg>
+            Add New
+          </a>
+        </div>
+        <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+            </svg>
+          </div>
+          <input [(ngModel)]="searchKey" (input)="searchPlayers()" type="search" id="player-search" class="block w-full p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-500 dark:focus:border-green-500" placeholder="Search players...">
+        </div>
+      </div>
+      
+      <!-- Filter options -->
+      <div class="mb-4 flex flex-wrap gap-1">
+        <button (click)="setPosFilter('all')" type="button" 
+                [ngClass]="positionFilter === 'all' ? 
+                  'px-2 py-1 text-xs font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500' : 
+                  'px-2 py-1 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100'">
+          All
+        </button>
+        
+        <button (click)="setPosFilter('F')" type="button" 
+                [ngClass]="positionFilter === 'F' ? 
+                  'px-2 py-1 text-xs font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700' : 
+                  'px-2 py-1 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 '">
+          Forwards
+        </button>
+        
+        <button (click)="setPosFilter('D')" type="button" 
+                [ngClass]="positionFilter === 'D' ? 
+                  'px-2 py-1 text-xs font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700' : 
+                  'px-2 py-1 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100'">
+          Defense
+        </button>
+        
+        <button (click)="setPosFilter('G')" type="button" 
+                [ngClass]="positionFilter === 'G' ? 
+                  'px-2 py-1 text-xs font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700' : 
+                  'px-2 py-1 text-xs font-medium text-center text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100'">
+          Goalies
+        </button>
+      </div>
+      
+    <!-- Player list -->
+    <div class="overflow-y-auto flex-grow mb-4">
+        <ul class="space-y-2">
+            <li *ngFor="let player of filteredPlayers | slice:0:25" class="p-2 bg-gray-100 border border-gray-200 rounded-lg shadow dark:bg-gray-700 dark:border-gray-600 dark:hover:bg-gray-600">
+                <div class="flex flex-col">
+                    <div class="flex items-start gap-2 mb-1.5">
+                        <!-- Team Logo -->
+                        <div class="flex-shrink-0 rounded-full flex items-center justify-center overflow-hidden dark:bg-gray-600">
+                            <img [src]="player.logo" alt="Team Logo" class="w-10 h-10 object-contain">
+                        </div>
+                        
+                        <!-- Player Info -->
+                        <div class="flex-grow">
+                            <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                                {{ player.first_name }}
+                            </p>
+                            <h5 class="text-sm font-bold tracking-tight text-gray-700 dark:text-white">
+                                {{ player.last_name }}
+                            </h5>
+                        </div>
+                        
+                        <!-- Draft Button -->
+                        <button (click)="draftPlayer(player, true)"
+                                [disabled]="!isDraftable(player, onTheClock)"
+                                class="flex-shrink-0 inline-flex items-center px-2 py-1 text-xs font-medium text-center text-white bg-green-400 rounded-lg hover:bg-green-500"
+                                [ngClass]="{
+                                    'bg-green-400 hover:bg-green-500 focus:ring-green-300': isDraftable(player, onTheClock),
+                                    'bg-green-300 cursor-not-allowed': !isDraftable(player, onTheClock)
+                                 }"
+                                >
+                            Draft
+                        </button>
+                    </div>
+                    
+                    <div class="flex" [ngClass]="{'space-x-1': player.years_left_current > 0}">
+                        <ng-container *ngIf="player.years_left_current > 0; else unsigned">
+                            <span class="basis-2/3 bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                                <svg class="w-3 h-3 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 22">
+                                    <path d="M18.045 3.007 12.31 3a1.965 1.965 0 0 0-1.4.585l-7.33 7.394a2 2 0 0 0 0 2.805l6.573 6.631a1.957 1.957 0 0 0 1.4.585 1.965 1.965 0 0 0 1.4-.585l7.409-7.477A2 2 0 0 0 21 11.479v-5.5a2.972 2.972 0 0 0-2.955-2.972Zm-2.452 6.438a1 1 0 1 1 0-2 1 1 0 0 1 0 2Z"/>
+                                </svg>
+                                ${{ player.aav_current | number:'1.0-0' }} AAV
+                            </span>
+                            <span class="basis-1/3 bg-blue-100 text-blue-800 text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-blue-400 border border-blue-400">
+                                <svg class="w-2.5 h-2.5 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 0a10 10 0 1 0 10 10A10.011 10.011 0 0 0 10 0Zm3.982 13.982a1 1 0 0 1-1.414 0l-3.274-3.274A1.012 1.012 0 0 1 9 10V6a1 1 0 0 1 2 0v3.586l2.982 2.982a1 1 0 0 1 0 1.414Z"/>
+                                </svg>
+                                {{ player.years_left_current }} YL
+                            </span>
+                        </ng-container>
+                        <ng-template #unsigned>
+                            <span class="w-full bg-red-100 text-red-800 text-xs font-medium inline-flex items-center justify-center px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">
+                                <svg class="w-3 h-3 me-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="m6 6 12 12m3-6a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                </svg>                       
+                                Unsigned
+                            </span>
+                        </ng-template>
+                    </div>
+                </div>
+            </li>
+            
+        </ul>
+    </div>
+      
+      <!-- Action buttons -->
+      <div class="mt-auto border-t pt-4 space-y-2">
+        <div class="flex space-x-2">
+            <button (click)="burnPick(true)" [disabled]="!draftInProgress()" type="button" class="text-white font-medium rounded-lg text-sm px-2.5 py-2.5 text-center inline-flex items-center"
+                [ngClass]="{
+                    'bg-red-500 hover:bg-red-600 focus:ring-green-300': draftInProgress(),
+                    'bg-red-300 cursor-not-allowed': !draftInProgress()
+                }"
+            >
+                Burn Pick
+                <svg class="w-4 h-4 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
+                </svg>                                
+            </button>
+            <button [disabled]="!draftInProgress() || testMode" (click)="openModal(tradeModal, 'trade')" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-2.5 py-2.5 text-center inline-flex items-center"
+                [ngClass]="{
+                    'bg-blue-500 hover:bg-blue-600 focus:ring-green-300': draftInProgress() && !testMode,
+                    'bg-blue-300 cursor-not-allowed': !draftInProgress() || testMode
+                }"
+            >
+                Quick Trade
+                <svg class="w-4 h-4 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m16 10 3-3m0 0-3-3m3 3H5v3m3 4-3 3m0 0 3 3m-3-3h14v-3"/>
+                </svg>                                                  
+            </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+  
+<!-- Right Sidebar -->
+<aside id="right-sidebar" class="fixed top-0 right-0 z-40 w-64 h-screen pt-20 transition-transform translate-x-full bg-white border-l border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700" aria-label="Right Sidebar">
+    <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
+       <!-- On the Clock with integrated clock -->
+       <div class="mb-4">
+          <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">On the Clock</h2>
+          <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700/50">
+             <!-- Pick Clock -->
+             <div *ngIf="usePickClock" class="text-center mb-3 pb-3 border-b border-gray-200 dark:border-gray-600">
+                <span class="text-3xl font-bold text-gray-900 dark:text-white">{{ formatPickClock() }}</span>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Time Remaining</p>
+             </div>
+             
+             <!-- Team Logo and Name -->
+             <div class="flex items-center mb-3">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden dark:bg-gray-600 mr-3">
+                    <img [src]="onTheClock.picture" alt="Team Logo" class="w-12 h-12 object-contain rounded-full">
+                </div>
+                <div>
+                   <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ onTheClock.team_name }}</h3>
+                   <p class="text-sm font-normal text-gray-600 dark:text-gray-400">Round {{ currentRound }}, Pick {{ pickOfRound }} ({{ nextPick }})</p>
+                </div>
+             </div>
+             
+             <!-- Team Stats -->
+             <div class="space-y-2 mt-2">
+                <div class="flex justify-between items-center">
+                   <span class="text-sm text-gray-700 dark:text-gray-300">Cap Space:</span>
+                   <span class="text-sm font-medium text-green-600 dark:text-green-400 py-0.5 px-1 rounded-md"
+                        [ngClass]="{
+                            'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': onTheClock.cap_space < 0,
+                            'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': onTheClock.cap_space > 0 && onTheClock.cap_space < 7000000,
+                            'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': onTheClock.cap_space >= 7000000
+                        }"
+                    >
+                    ${{ onTheClock.cap_space | number:'1.0-0' }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center">
+                   <span class="text-sm text-gray-700 dark:text-gray-300">Total Contracts:</span>
+                   <span class="text-sm font-medium text-gray-900 dark:text-white">{{ onTheClock.roster_size }}/{{ globalService.league?.max_roster_size }}</span>
+                </div>
+                <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+                   <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 dark:text-gray-300">Forwards:</span>
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ onTheClock.num_forwards }}/{{ globalService.league?.min_forwards }}</span>
+                   </div>
+                   <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 dark:text-gray-300">Defense:</span>
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ onTheClock.num_defense }}/{{ globalService.league?.min_defense }}</span>
+                   </div>
+                   <div class="flex justify-between items-center">
+                      <span class="text-sm text-gray-700 dark:text-gray-300">Goalies:</span>
+                      <span class="text-sm font-medium text-gray-900 dark:text-white">{{ onTheClock.num_goalies }}/{{ globalService.league?.min_goalies }}</span>
+                   </div>
+                   <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Rookie Bank:</span>
+                    <span class="text-sm font-medium text-gray-900 dark:text-white">{{ onTheClock.rookie_count }}/{{ globalService.league?.rookie_bank_size }}</span>
+                 </div>
+                </div>
+             </div>
+          </div>
+       </div>
+       
+       <!-- Draft Order -->
+       <div>
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Draft Order</h2>
+        <div class="space-y-2">
+            <ng-container *ngFor="let pick of getNextPicks(); let i = index">
+                <div class="rounded-lg" 
+                     [class.p-2]="true"
+                     [class.bg-green-400]="i === 0"
+                     [class.bg-opacity-20]="i === 0"
+                     [class.dark:bg-green-400]="i === 0">
+                    
+                    <p *ngIf="i === 0" class="text-sm font-medium text-gray-900 dark:text-white">Current Pick</p>
+                    
+                    <div class="flex items-center space-x-2 mt-1">
+                        <div class="w-10 h-10 rounded-full flex items-center justify-center"
+                             [class.bg-green-400]="i === 0"
+                             [class.bg-gray-200]="i > 0"
+                             [class.dark:bg-gray-700]="i > 0">
+                            
+                            <span class="font-semibold"
+                                  [class.text-white]="i === 0"
+                                  [class.text-gray-800]="i > 0"
+                                  [class.dark:text-gray-300]="i > 0">
+                                {{ getRound(pick) }}.{{ getPickOfRound(pick) }}
+                            </span>
+                        </div>
+                        
+                        <span class="text-sm font-medium"
+                              [class.text-gray-900]="i === 0"
+                              [class.dark:text-white]="i === 0"
+                              [class.text-gray-700]="i > 0"
+                              [class.dark:text-gray-300]="i > 0">
+                            {{ globalService.getTeamName(pickBelongsTo(pick)) }}
+                        </span>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+    </div>
+ </aside>
+  
+  <!-- Main content area with both sidebars -->
+  <div class="p-1.5 sm:ml-64 sm:mr-64">
+    <div class="p-1.5 rounded-lg mt-14">   
+      <div class="w-full">
+        <!-- Team Headers -->
+        <div class="flex w-full mb-2 sticky top-16 z-30 pb-2 pt-2">
+          <div *ngFor="let team of draft.draft_order" class="w-1/12">
+            <div class="rounded-lg p-2">
+              <div class="mb-1 mx-auto bg-white flex items-center justify-center">
+                <img [src]="team.picture" class="w-[50px] h-[50px] rounded-full">
+              </div>
+              <h5 class="text-center text-xs font-semibold tracking-tight text-gray-700 dark:text-white truncate">
+                {{ team.team_name }}
+              </h5>
+              <p class="text-center text-xs font-semibold mt-1 rounded-sm"
+                [ngClass]="{
+                    'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': team.cap_space < 0,
+                    'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': team.cap_space > 0 && team.cap_space < 7000000,
+                    'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': team.cap_space >= 7000000
+                }"
+              >
+                ${{ (team.cap_space / 1000000).toFixed(1) }}M
+              </p>
+            </div>
+          </div>        
+        </div>
+  
+        <!-- Draft Picks Container - Added a container with overflow -->
+        <div class="overflow-y-auto max-h-[calc(100vh-200px)]">
+          <!-- Draft Picks Grid -->
+          <div *ngFor="let round of [].constructor(rounds); let row = index" class="flex w-full">
+            <div *ngFor="let team of draft.draft_order" class="w-1/12">
+              <ng-container *ngIf="getPickInfo(team.team_id, row + 1) as pick">
+                <div class="block h-24 p-2 border rounded-lg shadow-md relative"
+                    [ngClass]="{
+                      'bg-white border-gray-400': pick.assigned_to === pick.owned_by && pick.player_first_name,
+                      'bg-red-200 border-red-300': pick.player_taken === 'none' || pick.player_taken === 'penalty',
+                      'bg-yellow-100 border-yellow-200': pick.assigned_to !== pick.owned_by && pick.player_taken !== 'none' && pick.player_taken !== 'penalty',
+                      'opacity-40': ((pick.player_taken === null || pick.player_taken === '') && pick.pick_number !== nextPick) || (!draftInProgress() && !draftComplete()) || (pick.player_taken === 'penalty' && pick.pick_number > nextPick),
+                      'border-2 border-green-400 ring-2 ring-green-200': draftInProgress() && pick.pick_number === nextPick
+                    }">
+                  
+                  <!-- Team watermark for traded picks -->
+                  <div *ngIf="pick.assigned_to !== pick.owned_by" 
+                      class="absolute bottom-1 right-1 pointer-events-none">
+                    <div class="w-8 h-8 rounded-full overflow-hidden opacity-60">
+                      <img [src]="getTeamImage(pick)" alt="Team Logo" class="w-full h-full object-cover">
+                    </div>
+                  </div>
+                  
+                  <!-- Current Pick Indicator -->
+                  <div *ngIf="pick.pick_number === nextPick && draftInProgress()" class="absolute top-0 right-0 bg-green-400 text-white text-[10px] py-0.5 px-1 rounded-bl-md rounded-tr-md flex items-center">
+                    <svg class="w-3 h-3 mr-0.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Now
+                  </div>
+                  
+                  <!-- Pick content -->
+                  <div class="relative z-10 h-full flex flex-col">
+                    <!-- Player name -->
+                    <div class="flex-grow">
+                      <p class="text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        <span *ngIf="pick.player_first_name">
+                          {{ pick.player_first_name }}
+                        </span>
+                        <span *ngIf="!pick.player_first_name">
+                          &nbsp;
+                        </span>
+                      </p>
+                      <h5 class="text-sm font-bold tracking-tight text-gray-700 dark:text-white">
+                        <span *ngIf="pick.player_first_name" [ngClass]="{ 'text-[10px]': pick.player_last_name.length > 12, 'text-xs': pick.player_last_name.length > 10 && pick.player_last_name.length <= 12 }">
+                          {{ pick.player_last_name }}
+                        </span>
+                        <span *ngIf="!pick.player_first_name && pick.player_taken === 'none'" class="text-red-800">
+                          Burned
+                        </span>
+                        <span *ngIf="!pick.player_first_name && pick.player_taken === 'penalty'" class="text-red-800">
+                            Penalty
+                        </span>
+                      </h5>
+                      <p class="text-[10px] text-gray-500 dark:text-gray-400">
+                        <span *ngIf="pick.player_first_name">
+                          {{ pick.player_position }} - {{ pick.player_short_code }}
+                        </span>
+                        <span *ngIf="!pick.player_first_name">
+                          &nbsp;
+                        </span>
+                      </p>
+                    </div>
+                    
+                    <!-- Pick number at bottom -->
+                    <p class="text-[10px] text-gray-700 font-semibold dark:text-gray-400 mt-auto">
+                      {{ pick.round }}.{{ pick.position }} ({{ pick.pick_number }})
+                    </p>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+<!-- New Player Modal -->
+<ng-template #newPlayerModal id="newPlayerModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+          <form (ngSubmit)="playerFormSubmit($event)" #playerForm="ngForm" [attr.data-action]="'add'" class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+ 
+             <div class="flex items-start justify-between p-4 rounded-t">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                   Create New Player
+                </h3>
+                <button type="button" (click)="closeModal()" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editUserModal">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                   <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+             </button>
+             </div>
+ 
+             <div class="p-6 space-y-6">
+                <div class="grid grid-cols-6 gap-6">
+                   <div class="col-span-6 sm:col-span-3">
+                         <label for="first-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">First Name</label>
+                         <input type="text" [(ngModel)]="formData.first_name" name="first-name" id="first-name" class="shadow-sm bg-gray-50  text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                   </div>
+                   <div class="col-span-6 sm:col-span-3">
+                         <label for="last-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Last Name</label>
+                         <input type="text" [(ngModel)]="formData.last_name" name="last-name" id="last-name" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5 dark:bg-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required="">
+                   </div>
+                   <div class="col-span-6 sm:col-span-3">
+                         <label for="position" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Position</label>
+                         <select name="position" [(ngModel)]="formData.position" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                            <option [value]="''">Select position...</option>
+                            <option value="F">Forward</option>
+                            <option value="D">Defense</option>
+                            <option value="G">Goalie</option>
+                         </select>
+                   </div>
+                   <div class="col-span-6 sm:col-span-3">
+                      <label for="nhl_team" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">NHL Team</label>
+                      <select name="nhl_team" [(ngModel)]="formData.short_code"
+                            class="select-dropdown bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                      <option [value]="''">Select team...</option>
+                      <option *ngFor="let team of globalService.nhl_teams" [value]="team.short_code">{{ team.city }} {{ team.team_name }}</option>
+                      </select>
+                   </div>
+                   <div class="col-span-6 sm:col-span-3">
+                        <label for="aav_current" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">AAV</label>
+                        <input type="number" [(ngModel)]="formData.aav_current" autocomplete="off" name="aav_current" id="aav_current" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5" required="">
+                    </div>
+                    <div class="col-span-6 sm:col-span-3">
+                        <label for="years_left_current" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Years Left</label>
+                        <input type="number" max="8" min="0" autocomplete="off" [(ngModel)]="formData.years_left_current" name="years_left_current" id="years_left_current" class="shadow-sm bg-gray-50 text-gray-900 text-sm rounded-lg border border-green-400 focus:ring-green-600 focus:border-green-500 block w-full p-2.5" required="">
+                    </div>                  
+                </div>
+             </div>
+ 
+             <div class="flex items-center p-6 space-x-3 rtl:space-x-reverse rounded-b">
+                <button 
+                   type="submit" 
+                   [disabled]="isButtonDisabled()"
+                   class="text-white bg-green-400 hover:bg-green-500 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800"
+                   [ngClass]="{
+                      'bg-green-400 hover:bg-green-500 focus:ring-green-300': !isButtonDisabled(),
+                      'bg-green-300 cursor-not-allowed': isButtonDisabled()
+                   }" 
+                   >
+                   Create Player
+                </button>
+                <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
+             </div>
+       </form>
+    </div>
+ </ng-template>
+
+
+ <!-- Trade Modal -->
+ <ng-template #tradeModal id="tradeModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
+        <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-6xl w-full max-h-[90vh] overflow-auto">
+          <!-- Modal Header -->
+          <div class="flex items-center justify-between p-4 border-b dark:border-gray-700">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+              Trade Details
+            </h3>
+            <button (click)="closeModal()" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
+              <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 12 12M1 13 13 1"/>
+              </svg>
+              <span class="sr-only">Close modal</span>
+            </button>
+          </div>
+          
+          <!-- Modal Body -->
+          <div class="p-4 space-y-4">
+            <div class="flex flex-col md:flex-row md:space-x-4">
+              <!-- Left Column -->
+              <div class="w-full md:w-1/2 mb-4 md:mb-0">
+                <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700/50 mb-3">
+                    <!-- Team Logo and Name with Dropdown -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden dark:bg-gray-600 mr-3">
+                                <img [src]="tradeService.team1.picture" alt="Team Logo" class="w-12 h-12 object-contain rounded-full">
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ tradeService.team1.team_name }}</h3>
+                                <p class="text-sm font-normal text-gray-600 dark:text-gray-400">{{ tradeService.team1.managed_by }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Selector Dropdown -->
+                        <div class="flex-shrink-0 flex flex-col">
+                            <label for="team-filter" class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Select team:</label>
+                            <select id="team-filter" [(ngModel)]="tradeService.team1.team_id" (ngModelChange)="tradeService.setteam1($event)" class="bg-gray-50 border border-green-400 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 p-1.5 min-w-[150px]">
+                                <option value="">Select team...</option>
+                                <option *ngFor="let team of tradePartnerPipe(0)" [value]="team.team_id">{{ team.team_name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Stats -->
+                    <div class="space-y-1.5 mt-2">
+                        <div class="border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Cap Space</span>
+                                <span class="text-sm font-medium text-green-600 dark:text-green-400 py-0.5 px-1 rounded-md"
+                                    [ngClass]="{
+                                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': tradeService.team1.cap_space < 0,
+                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': tradeService.team1.cap_space > 0 && tradeService.team1.cap_space < 7000000,
+                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': tradeService.team1.cap_space >= 7000000
+                                    }"
+                                >
+                                    ${{ tradeService.capSpaceAfterTrade(0) | number:'1.0-0' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Total Contracts</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ tradeService.contractsAfterTrade(0) }}/{{ globalService.league?.max_roster_size }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Rookie Bank</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ tradeService.rookiesAfterTrade(0) }}/{{ globalService.league?.rookie_bank_size }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Table -->
+                <div class="mb-4">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 max-h-[500px]">
+                        <thead class="text-xs text-gray-700 bg-gray-100">
+                            <tr class="border-b sticky top-0">
+                                <th scope="col" class="p-1.5 bg-gray-100 w-[15%]">Type</th>
+                                <th scope="col" class="text-left p-1.5 bg-gray-100">Asset</th>
+                                <th scope="col" class="text-right p-2.5 bg-gray-100 w-[14%]">
+                                    <a (click)="tradeService.clearAssets('team1')" class="cursor-pointer font-medium text-xs text-green-500 dark:text-green-500 hover:underline">Clear All</a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let asset of [].constructor(6); let i = index" class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <td class="p-1.5 dark:bg-gray-800 min-w-[115px]">
+                                    <select [(ngModel)]="tradeService.team1_assets_types[i]" (change)="tradeService.closeReqDropdown(i); tradeService.removeAsset(tradeService.team1_assets, i)"
+                                        class="inline-flex items-center text-xs w-full px-2 py-1.5 font-medium rounded-md text-gray-700 bg-white border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-green-600">         
+                                        <option value="">Select</option>
+                                        <option value="player">Player</option>
+                                        <option value="general">General Pick</option>
+                                        <option value="rookie">Rookie Pick</option>  
+                                        <option value="fa">FA Pick</option>         
+                                    </select> 
+                                </td>        
+                                
+                                <td class="flex items-center p-1.5 text-gray-900 whitespace-nowrap dark:text-white dark:bg-gray-800">
+                                    
+                                    <!-- Player Selection -->
+                                    <ng-container *ngIf="tradeService.team1_assets_types[i] === 'player'">
+                                        <ng-container *ngIf="!tradeService.team1_assets[i]; else showPlayer">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleReqDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Player
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                            
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenReq[i]" id="dropdownUsers" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                                                        <li *ngFor="let player of tradeService.team1.roster | tradeAssetPipe: tradeService.team1_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team1_assets, player, i)" class="flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                <img class="w-6 h-6 me-2 rounded-full" src="{{player.logo}}" alt="{{player.player_id}}">
+                                                                {{ player.first_name }} {{ player.last_name }}
+                                                                <span class="font-normal text-[10px] text-gray-500">&nbsp;{{ player.position }}-{{ player.short_code }}</span>
+                                                                <div *ngIf="player.onIR" class="bg-red-100 text-red-800 text-[8px] font-medium ml-1 px-1 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">IR</div>
+                                                                <div *ngIf="player.isRookie" class="bg-green-100 text-green-800 text-[8px] font-medium ml-1 px-1 py-0.5 rounded dark:bg-gray-700 dark:text-green-400 border border-green-400">Rookie</div>                                                    
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                    
+                                        <ng-template #showPlayer>
+                                            <div class="flex items-center w-full">
+                                                <img class="w-7 h-7 rounded-full" src="{{tradeService.team1_assets[i]?.logo}}" alt="Player image">
+                                                <div class="ps-2 flex-grow flex items-center">
+                                                    <span class="text-gray-500 text-xs font-normal mr-1">{{ tradeService.team1_assets[i]?.position }}</span>
+                                                    <span class="text-xs font-medium">{{ tradeService.team1_assets[i]?.first_name }} {{ tradeService.team1_assets[i]?.last_name }}</span>
+                                                    <span class="text-[10px] text-gray-500 ml-1">{{ tradeService.team1_assets[i]?.short_code }}</span>
+                                                    <span *ngIf="tradeService.team1_assets[i]?.isRookie" class="bg-green-100 text-green-800 text-[8px] font-medium px-1 rounded border border-green-400 ml-1.5">Rookie</span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 ml-auto">
+                                                    {{ tradeService.team1_assets[i]?.aav_current > 0 ? '$' + (tradeService.team1_assets[i]?.aav_current - (tradeService.team1_assets[i]?.aav_current * (tradeService.team1_assets[i]?.retention_perc / 100)) | number: '1.0-0') : '' }}
+                                                </div>
+                                            </div>
+                                        </ng-template>
+                                    </ng-container>
+            
+                                    <!-- General Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team1_assets_types[i] === 'general'">
+                                        <ng-container *ngIf="!tradeService.team1_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleReqDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Pick
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenReq[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.getPicksByType(tradeService.team1, 'general') | tradeAssetPipe: tradeService.team1_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team1_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Round {{ pick?.round }}
+                                                                <span *ngIf="pick?.pick_number">&nbsp;(#{{ pick?.pick_number }})</span>
+                                                                &nbsp;-&nbsp;General {{ pick?.year}}
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3m-3 3h3m-3 3h3m-6 1c-.306-.613-.933-1-1.618-1H7.618c-.685 0-1.312.387-1.618 1M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm7 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Round {{ tradeService.team1_assets[i]?.round }}
+                                                    <span *ngIf="tradeService.team1_assets[i]?.pick_number">({{ tradeService.team1_assets[i]?.pick_number }})</span>
+                                                     - General {{ tradeService.team1_assets[i]?.year}}
+                                                    <span *ngIf="tradeService.team1_assets[i]?.assigned_to !== tradeService.team1_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team1_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+                    
+                                    <!-- Rookie Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team1_assets_types[i] === 'rookie'">
+                                        <ng-container *ngIf="!tradeService.team1_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleReqDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Pick
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenReq[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.getPicksByType(tradeService.team1, 'rookie') | tradeAssetPipe: tradeService.team1_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team1_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Round {{ pick?.round }}
+                                                                <span *ngIf="pick?.pick_number">&nbsp;(#{{ pick?.pick_number }})</span>
+                                                                 &nbsp;-&nbsp;Rookie {{ pick?.year}}
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3m-3 3h3m-3 3h3m-6 1c-.306-.613-.933-1-1.618-1H7.618c-.685 0-1.312.387-1.618 1M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm7 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Round {{ tradeService.team1_assets[i]?.round }}
+                                                    <span *ngIf="tradeService.team1_assets[i]?.pick_number">({{ tradeService.team1_assets[i]?.pick_number }})</span>
+                                                     - Rookie {{ tradeService.team1_assets[i]?.year}}
+                                                    <span *ngIf="tradeService.team1_assets[i]?.assigned_to !== tradeService.team1_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team1_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+                    
+                                    <!-- FA Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team1_assets_types[i] === 'fa'">
+                                        <ng-container *ngIf="!tradeService.team1_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleReqDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select FA
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenReq[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.team1.fa_picks | tradeAssetPipe: tradeService.team1_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team1_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Week {{ pick?.week }} ({{ pick?.year }})
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Week {{ tradeService.team1_assets[i]?.week }} ({{ tradeService.team1_assets[i]?.year }})
+                                                    <span *ngIf="tradeService.team1_assets[i]?.assigned_to !== tradeService.team1_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team1_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+        
+                                </td>
+                
+                                <td class="p-1.5 text-right">
+                                    <div class="flex items-center justify-end space-x-1">                                        
+                                        <!-- Remove Asset Button -->
+                                        <div *ngIf="tradeService.team1_assets[i]" (click)="tradeService.removeAsset(tradeService.team1_assets, i); tradeService.closeReqDropdown(i)" class="cursor-pointer">
+                                            <svg class="w-5 h-5 text-red-500 dark:text-white hover:text-red-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>            
+                </div>
+            </div>
+              
+              <!-- Right Column - Assets to Receive -->
+              <div class="w-full md:w-1/2 mb-4 md:mb-0">
+                <!-- Team Stats Card -->
+                <div class="p-4 bg-gray-100 rounded-lg dark:bg-gray-700/50 mb-3">
+                    <!-- Team Logo and Name with Dropdown -->
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden dark:bg-gray-600 mr-3">
+                                <img [src]="tradeService.team2.picture" alt="Team Logo" class="w-12 h-12 object-contain rounded-full">
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ tradeService.team2.team_name }}</h3>
+                                <p class="text-sm font-normal text-gray-600 dark:text-gray-400">{{ tradeService.team2.managed_by }}</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Selector Dropdown -->
+                        <div class="flex-shrink-0 flex flex-col">
+                            <label for="team-filter" class="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Select team:</label>
+                            <select id="team-filter" [(ngModel)]="tradeService.team2.team_id" (ngModelChange)="tradeService.setteam2($event)" class="bg-gray-50 border border-green-400 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 p-1.5 min-w-[150px]">
+                                <option value="">Select team...</option>
+                                <option *ngFor="let team of tradePartnerPipe(1)" [value]="team.team_id">{{ team.team_name }}</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Team Stats -->
+                    <div class="space-y-1.5 mt-2">
+                        <div class="border-t border-gray-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Cap Space</span>
+                                <span class="text-sm font-medium text-green-600 dark:text-green-400 py-0.5 px-1 rounded-md"
+                                    [ngClass]="{
+                                        'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': tradeService.team2.cap_space < 0,
+                                        'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300': tradeService.team2.cap_space > 0 && tradeService.team2.cap_space < 7000000,
+                                        'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': tradeService.team2.cap_space >= 7000000
+                                    }"
+                                >
+                                    ${{ tradeService.capSpaceAfterTrade(1) | number:'1.0-0' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Total Contracts</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ tradeService.contractsAfterTrade(1) }}/{{ globalService.league?.max_roster_size }}</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm text-gray-700 dark:text-gray-300">Rookie Bank</span>
+                                <span class="text-sm font-medium text-gray-900 dark:text-white">{{ tradeService.rookiesAfterTrade(1) }}/{{ globalService.league?.rookie_bank_size }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Table -->
+                <div class="mb-4">
+                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 max-h-[500px]">
+                        <thead class="text-xs text-gray-700 bg-gray-100">
+                            <tr class="border-b sticky top-0">
+                                <th scope="col" class="p-1.5 bg-gray-100 w-[15%]">Type</th>
+                                <th scope="col" class="text-left p-1.5 bg-gray-100">Asset</th>
+                                <th scope="col" class="text-right p-2.5 bg-gray-100 w-[14%]">
+                                    <a (click)="tradeService.clearAssets('team2')" class="cursor-pointer font-medium text-xs text-green-500 dark:text-green-500 hover:underline">Clear All</a>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let asset of [].constructor(6); let i = index" class="border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <td class="p-1.5 dark:bg-gray-800 min-w-[115px]">
+                                    <select [(ngModel)]="tradeService.team2_assets_types[i]" (change)="tradeService.closeRecDropdown(i); tradeService.removeAsset(tradeService.team2_assets, i)"
+                                        class="inline-flex items-center text-xs w-full px-2 py-1.5 font-medium rounded-md text-gray-700 bg-white border border-gray-300 focus:outline-none focus:ring-1 focus:ring-green-500 shadow-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:focus:ring-green-600">         
+                                        <option value="">Select</option>
+                                        <option value="player">Player</option>
+                                        <option value="general">General Pick</option>
+                                        <option value="rookie">Rookie Pick</option>  
+                                        <option value="fa">FA Pick</option>         
+                                    </select> 
+                                </td>       
+                                
+                                <td class="flex items-center p-1.5 text-gray-900 whitespace-nowrap dark:text-white dark:bg-gray-800">
+                                    
+                                    <!-- Player Selection -->
+                                    <ng-container *ngIf="tradeService.team2_assets_types[i] === 'player'">
+                                        <ng-container *ngIf="!tradeService.team2_assets[i]; else showPlayer">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleRecDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Player
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                            
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenRec[i]" id="dropdownUsers" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200" aria-labelledby="dropdownUsersButton">
+                                                        <li *ngFor="let player of tradeService.team2.roster | tradeAssetPipe: tradeService.team2_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team2_assets, player, i)" class="flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                <img class="w-6 h-6 me-2 rounded-full" src="{{player.logo}}" alt="{{player.player_id}}">
+                                                                {{ player.first_name }} {{ player.last_name }}
+                                                                <span class="font-normal text-[10px] text-gray-500">&nbsp;{{ player.position }}-{{ player.short_code }}</span>
+                                                                <div *ngIf="player.onIR" class="bg-red-100 text-red-800 text-[8px] font-medium ml-1 px-1 py-0.5 rounded dark:bg-gray-700 dark:text-red-400 border border-red-400">IR</div>
+                                                                <div *ngIf="player.isRookie" class="bg-green-100 text-green-800 text-[8px] font-medium ml-1 px-1 py-0.5 rounded dark:bg-gray-700 dark:text-green-400 border border-green-400">Rookie</div>                                                    
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>
+                                    
+                                        <ng-template #showPlayer>
+                                            <div class="flex items-center w-full">
+                                                <img class="w-7 h-7 rounded-full" src="{{tradeService.team2_assets[i]?.logo}}" alt="Player image">
+                                                <div class="ps-2 flex-grow flex items-center">
+                                                    <span class="text-gray-500 text-xs font-normal mr-1">{{ tradeService.team2_assets[i]?.position }}</span>
+                                                    <span class="text-xs font-medium">{{ tradeService.team2_assets[i]?.first_name }} {{ tradeService.team2_assets[i]?.last_name }}</span>
+                                                    <span class="text-[10px] text-gray-500 ml-1">{{ tradeService.team2_assets[i]?.short_code }}</span>
+                                                    <span *ngIf="tradeService.team2_assets[i]?.isRookie" class="bg-green-100 text-green-800 text-[8px] font-medium px-1 rounded border border-green-400 ml-1.5">Rookie</span>
+                                                </div>
+                                                <div class="text-xs text-gray-500 ml-auto">
+                                                    {{ tradeService.team2_assets[i]?.aav_current > 0 ? '$' + (tradeService.team2_assets[i]?.aav_current - (tradeService.team2_assets[i]?.aav_current * (tradeService.team2_assets[i]?.retention_perc / 100)) | number: '1.0-0') : '' }}
+                                                </div>
+                                            </div>
+                                        </ng-template>
+                                    </ng-container>
+            
+                                    <!-- General Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team2_assets_types[i] === 'general'">
+                                        <ng-container *ngIf="!tradeService.team2_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleRecDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Pick
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenRec[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.getPicksByType(tradeService.team2, 'general') | tradeAssetPipe: tradeService.team2_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team2_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Round {{ pick?.round }}
+                                                                <span *ngIf="pick?.pick_number">&nbsp;(#{{ pick?.pick_number }})</span>
+                                                                &nbsp;-&nbsp;General {{ pick?.year}}
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3m-3 3h3m-3 3h3m-6 1c-.306-.613-.933-1-1.618-1H7.618c-.685 0-1.312.387-1.618 1M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm7 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Round {{ tradeService.team2_assets[i]?.round }}
+                                                    <span *ngIf="tradeService.team2_assets[i]?.pick_number">({{ tradeService.team2_assets[i]?.pick_number }})</span>
+                                                     - General {{ tradeService.team2_assets[i]?.year}}
+                                                    <span *ngIf="tradeService.team2_assets[i]?.assigned_to !== tradeService.team2_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team2_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+                    
+                                    <!-- Rookie Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team2_assets_types[i] === 'rookie'">
+                                        <ng-container *ngIf="!tradeService.team2_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleRecDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select Pick
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenRec[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.getPicksByType(tradeService.team2, 'rookie') | tradeAssetPipe: tradeService.team2_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team2_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Round {{ pick?.round }}
+                                                                <span *ngIf="pick?.pick_number">&nbsp;(#{{ pick?.pick_number }})</span>
+                                                                 &nbsp;-&nbsp;Rookie {{ pick?.year}}
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9h3m-3 3h3m-3 3h3m-6 1c-.306-.613-.933-1-1.618-1H7.618c-.685 0-1.312.387-1.618 1M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm7 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Round {{ tradeService.team2_assets[i]?.round }}
+                                                    <span *ngIf="tradeService.team2_assets[i]?.pick_number">({{ tradeService.team2_assets[i]?.pick_number }})</span>
+                                                     - Rookie {{ tradeService.team2_assets[i]?.year}}
+                                                    <span *ngIf="tradeService.team2_assets[i]?.assigned_to !== tradeService.team2_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team2_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+                    
+                                    <!-- FA Pick Selection -->
+                                    <ng-container *ngIf="tradeService.team2_assets_types[i] === 'fa'">
+                                        <ng-container *ngIf="!tradeService.team2_assets[i]; else showPick">
+                                            <div class="relative inline-flex items-center text-xs w-full">
+                                                <button (click)="tradeService.toggleRecDropdown(i)" class="text-white bg-green-400 hover:bg-green-500 focus:outline-none focus:ring-1 focus:ring-green-300 font-medium rounded-md text-xs px-2 py-1.5 h-[28px] text-center inline-flex items-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800" type="button">
+                                                    Select FA
+                                                    <svg class="w-2.5 h-2.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/>
+                                                    </svg>
+                                                </button>
+                                        
+                                                <!-- Dropdown menu -->
+                                                <div *ngIf="tradeService.dropdownOpenRec[i]" class="absolute z-50 bg-white rounded-lg shadow w-72 dark:bg-gray-700 mt-1 top-full">
+                                                    <ul class="text-xs h-56 py-1 overflow-y-auto text-gray-700 dark:text-gray-200">
+                                                        <li *ngFor="let pick of tradeService.team2.fa_picks | tradeAssetPipe: tradeService.team2_assets : tradeService.getAssetType" class="border-gray-200 border-b">
+                                                            <div (click)="tradeService.selectAsset(tradeService.team2_assets, pick, i)" class="text-gray-900 flex items-center px-3 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white cursor-pointer">
+                                                                Week {{ pick?.week }} ({{ pick?.year }})
+                                                                <span *ngIf="pick?.assigned_to !== pick?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                                    via {{ globalService.getTeamName(pick.assigned_to) }}
+                                                                </span>
+                                                            </div>
+                                                        </li>                                            
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </ng-container>                                
+                                    
+                                        <ng-template #showPick>
+                                            <div class="flex items-center w-full">
+                                                <div class="w-7 h-7 flex items-center justify-center mr-2">
+                                                    <svg class="w-6 h-6 text-green-400 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12h4m-2 2v-4M4 18v-1a3 3 0 0 1 3-3h4a3 3 0 0 1 3 3v1a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Zm8-10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="flex-grow text-xs font-medium">
+                                                    Week {{ tradeService.team2_assets[i]?.week }} ({{ tradeService.team2_assets[i]?.year }})
+                                                    <span *ngIf="tradeService.team2_assets[i]?.assigned_to !== tradeService.team2_assets[i]?.owned_by" class="text-[8px] text-gray-500 ml-1">
+                                                        via {{ globalService.getTeamName(tradeService.team2_assets[i]?.assigned_to) }}
+                                                    </span>
+                                                </div>                                       
+                                            </div>                                    
+                                        </ng-template>
+                                    </ng-container>
+        
+                                </td>
+                
+                                <td class="p-1.5 text-right">
+                                    <div class="flex items-center justify-end space-x-1">                                        
+                                        <!-- Remove Asset Button -->
+                                        <div *ngIf="tradeService.team2_assets[i]" (click)="tradeService.removeAsset(tradeService.team2_assets, i); tradeService.closeReqDropdown(i)" class="cursor-pointer">
+                                            <svg class="w-5 h-5 text-red-500 dark:text-white hover:text-red-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.757 12h8.486M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>            
+                </div>
+            </div>
+        </div>
+            
+            <!-- Modal Footer with Action Buttons -->
+            <div class="flex items-center justify-end space-x-2 border-t dark:border-gray-700 pt-4">
+                <button type="button" (click)="closeModal()" class="text-green-400 bg-white hover:bg-green-500 hover:text-white border border-green-400 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-green-400 dark:hover:bg-green-500 dark:focus:ring-green-800">Cancel</button>
+                <button type="button" (click)="submitTrade(); closeModal()" class="text-white bg-green-400 hover:bg-green-500 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                    Submit Trade
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</ng-template>
+
+

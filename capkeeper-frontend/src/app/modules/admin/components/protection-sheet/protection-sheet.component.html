@@ -8,7 +8,7 @@
     <div class="flex items-center justify-end">
        <div class="w-full md:w-auto flex flex-col text-gray-900">
           <label for="team-filter" class="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Choose team:</label>
-          <select id="team-filter" [(ngModel)]="team.team_id" (ngModelChange)="setProtectionSheet($event)" class="bg-gray-50 border border-green-400 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-400 dark:focus:border-green-400 min-w-[200px]">
+          <select id="team-filter" [(ngModel)]="team.team_id" (ngModelChange)="setTeam($event)" class="bg-gray-50 border border-green-400 text-gray-900 text-sm rounded-lg focus:ring-green-400 focus:border-green-400 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-green-400 dark:focus:border-green-400 min-w-[200px]">
              <option value="">Select team...</option>
              <option *ngFor="let team of globalService.teams" [value]="team.team_id">{{ team.team_name }}</option>
           </select>
@@ -22,50 +22,75 @@
     <!-- Team Info & Roster -->
     <div class="md:col-span-1 flex items-center">
         <div class="flex h-auto w-full bg-white dark:bg-gray-800 border border-gray-300 rounded-md shadow-md">
-        <div class="w-full">
-            <div class="p-4">
-            <table class="w-full">
-                <tr>
-                <td class="items-left align-top">
-                    <table>
+            <div class="w-full">
+                <div class="p-4">
+                    <table class="w-full">
                         <tr>
-                            <td class="items-left p-4">
-                                <img [src]="team.picture" class="max-w-[150px] rounded-full">
-                            </td>
-                            <td>
-                                <h1 class="mb-4 font-bold text-3xl leading-none tracking-tight text-gray-900 md:text-3xl lg:text-3xl dark:text-white">{{ team.team_name }}</h1>
-                                <h3 class="pb-4"><b>Managed by:</b><br> {{ team.managed_by }}</h3>
-                                <div>
-                                    <div *ngIf="editRights" class="relative inline-block mr-3 mb-2">
-                                        <button type="button" (click)="openModal(saveProtectionSheetModal)"
-                                            class="w-auto px-4 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-green-400 rounded-lg hover:bg-green-500 dark:bg-green-400 dark:hover:bg-green-500">
-                                            <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                                <path fill-rule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.414A2 2 0 0 0 20.414 6L18 3.586A2 2 0 0 0 16.586 3H5Zm3 11a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6H8v-6Zm1-7V5h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1Z" clip-rule="evenodd"/>
-                                                <path fill-rule="evenodd" d="M14 17h-4v-2h4v2Z" clip-rule="evenodd"/>
-                                            </svg>
-                                            Save Sheet
-                                        </button>
-                                    
-                                    </div>
-                                        
-                                    <button type="button" *ngIf="globalService.league?.protectionIsPublic || globalService.loggedInUser?.isAdmin || editRights" (click)="loadSheet(team.team_id)"
-                                        class="w-auto px-4 py-2 text-xs font-medium hover:text-white text-center border border-green-400 inline-flex items-center text-green-400 bg-white rounded-lg hover:bg-green-500 dark:bg-green-400 dark:hover:bg-green-500">
-                                        <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
-                                            <path fill-rule="evenodd" d="M13 11.15V4a1 1 0 1 0-2 0v7.15L8.78 8.374a1 1 0 1 0-1.56 1.25l4 5a1 1 0 0 0 1.56 0l4-5a1 1 0 1 0-1.56-1.25L13 11.15Z" clip-rule="evenodd"/>
-                                            <path fill-rule="evenodd" d="M9.657 15.874 7.358 13H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2.358l-2.3 2.874a3 3 0 0 1-4.685 0ZM17 16a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H17Z" clip-rule="evenodd"/>
-                                        </svg>
-                                          
-                                        Load Sheet
-                                    </button>
-                                </div>
+                            <td class="items-left align-top">
+                                <table>
+                                    <tr>
+                                        <td class="items-left p-4">
+                                            <img [src]="team.picture" class="max-w-[120px] rounded-full">
+                                        </td>
+                                        <td>
+                                            <div class="flex items-center gap-2 mb-2">
+                                                <h1 class="font-bold text-2xl leading-none tracking-tight text-gray-900 dark:text-white">{{ team.team_name }}</h1>
+                                                <span *ngIf="sheet.sheet_id === null" class="bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-red-900 dark:text-red-300">No Sheet</span>
+                                                <span *ngIf="sheet.status === 'saved'" class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-yellow-900 dark:text-yellow-300">Not Submitted</span>
+                                                <span *ngIf="sheet.status === 'final'" class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Submitted</span>
+                                                <span *ngIf="sheet.status === 'processed'" class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300">Processed</span>
+                                            </div>
+                                            <h3 class="pb-4 text-sm"><b>Managed by:</b><br> {{ team.managed_by }}</h3>
+                                            <div class="flex items-center flex-wrap gap-2">
+                                                <button *ngIf="editRights && sheetIsPending()" type="button" (click)="openModal(saveProtectionSheetModal)"
+                                                    class="px-4 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-green-400 rounded-lg hover:bg-green-500 dark:bg-green-400 dark:hover:bg-green-500">
+                                                    <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path fill-rule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7.414A2 2 0 0 0 20.414 6L18 3.586A2 2 0 0 0 16.586 3H5Zm3 11a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6H8v-6Zm1-7V5h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1Z" clip-rule="evenodd"/>
+                                                        <path fill-rule="evenodd" d="M14 17h-4v-2h4v2Z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Save Sheet
+                                                </button>
+                                                    
+                                                <button type="button" *ngIf="globalService.league?.protectionIsPublic || globalService.loggedInUser?.isAdmin || editRights || !sheetIsPending()" (click)="loadSheet(team.team_id, true)"
+                                                    class="px-4 py-2 text-xs font-medium hover:text-white text-center inline-flex items-center text-green-400 bg-white border border-green-400 rounded-lg hover:bg-green-500 dark:bg-green-400 dark:hover:bg-green-500">
+                                                    <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path fill-rule="evenodd" d="M13 11.15V4a1 1 0 1 0-2 0v7.15L8.78 8.374a1 1 0 1 0-1.56 1.25l4 5a1 1 0 0 0 1.56 0l4-5a1 1 0 1 0-1.56-1.25L13 11.15Z" clip-rule="evenodd"/>
+                                                        <path fill-rule="evenodd" d="M9.657 15.874 7.358 13H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2.358l-2.3 2.874a3 3 0 0 1-4.685 0ZM17 16a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H17Z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Load Sheet
+                                                </button>
+                                                
+                                                <button *ngIf="editRights && sheetIsValid() && sheetIsPending()" type="button" (click)="openModal(finalizeSheetModal)" 
+                                                    class="px-4 py-2 text-xs font-medium text-center inline-flex items-center text-white bg-red-500 rounded-lg hover:bg-red-600">
+                                                    <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path fill-rule="evenodd" d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z" clip-rule="evenodd"/>
+                                                    </svg>
+                                                    Finalize
+                                                </button>
+
+                                                <button *ngIf="globalService.loggedInUser?.isAdmin && sheetIsValid() && sheet.status === 'final'" type="button" (click)="openModal(processSheetModal)" 
+                                                    class="px-4 py-2 text-xs font-medium text-center inline-flex items-center text-red-500 bg-white border border-red-500 rounded-lg hover:bg-red-500 hover:text-white dark:hover:bg-red-600">
+                                                    <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                        <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M10 3v4a1 1 0 0 1-1 1H5m14-4v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V7.914a1 1 0 0 1 .293-.707l3.914-3.914A1 1 0 0 1 9.914 3H18a1 1 0 0 1 1 1Z"/>
+                                                    </svg>
+                                                    Process Sheet
+                                                </button>
+
+                                                <div *ngIf="globalService.loggedInUser?.isAdmin && sheet.status === 'final' && !sheetIsValid()" class="w-full mt-2 text-xs text-red-500 font-medium">
+                                                    There are errors in this sheet. 
+                                                    <button (click)="rejectSheet()" class="underline text-red-600 hover:text-red-800">
+                                                        Click here to Reject
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
-                </td>
-                </tr>
-            </table>
+                </div>
             </div>
-        </div>
         </div>
     </div>
 
@@ -73,9 +98,7 @@
     <div class="md:col-span-1 flex items-center">
         <div class="flex h-auto w-full bg-white dark:bg-gray-800">
             <div class="w-full p-4">
-                <a [routerLink]="['/', globalService.league?.league_id, 'players']">
-                    <h5 class="mb-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white">How it works...</h5>
-                </a>
+                <h5 class="mb-2 text-xl font-semibold tracking-tight text-gray-900 dark:text-white">How it works...</h5>
                 <p class="mb-3 font-normal text-gray-700 dark:text-gray-400 text-sm">
                     Select your keepers from the sheet below. A complete protection sheet must include a minimum of 5 forwards, 3 defensemen, and 1 goalie plus up to 6 bench spots of any position. The main sheet has a cap limit of $47M and the bench has a cap limit of $5M plus any unused space from the main sheet divided by 2. You may designate one franchise player to exclude their cap hit from the main sheet limit. However, franchise players will still count toward the positional minimum.
                 </p>
@@ -397,7 +420,7 @@
                  </div>
                  <div class="flex items-center justify-end">
                     <div class="w-full md:w-auto flex flex-col text-gray-500 text-sm font-semibold">
-                    {{ protected_count }} players protected
+                    {{ sheet.protected_count }} players protected
                     </div>
                  </div>
              </div>
@@ -432,7 +455,7 @@
                     </thead>
                     <tbody>
                         <tr class="border-b dark:bg-gray-800 dark:border-gray-700"> 
-                            <ng-container *ngIf="franchise_player; else emptyRow">
+                            <ng-container *ngIf="sheet.franchise_player; else emptyRow">
                                 <!-- Display row with player data if protected_goalies[i] exists -->
                                 <td class="py-1 md:px-4 dark:bg-gray-800 z-10">
                                     1                   
@@ -441,15 +464,15 @@
                                 <!-- Player Column -->
                                 <td class="flex items-left px-2 py-1 text-gray-900 whitespace-nowrap dark:text-white dark:bg-gray-800">
                                     <div class="text-sm font-semibold">
-                                        {{ franchise_player.first_name }} {{ franchise_player.last_name }}
+                                        {{ sheet.franchise_player.first_name }} {{ sheet.franchise_player.last_name }}
                                         <span class="ms-0.5 font-normal text-[11px] text-gray-500">
-                                            {{ franchise_player.position }} - {{ franchise_player.short_code }}
+                                            {{ sheet.franchise_player.position }} - {{ sheet.franchise_player.short_code }}
                                         </span>
                                     </div>
                                 </td>
                         
                                 <td class="px-6 py-1 text-right" colspan="2">
-                                    ${{ franchise_player.aav_current | number:'1.0-0' }}
+                                    ${{ sheet.franchise_player.aav_current | number:'1.0-0' }}
                                 </td>     
                             </ng-container>
                         
@@ -477,7 +500,7 @@
                             <th scope="col" class="bg-green-400 text-white dark:bg-gray-700 text-center p-2 font-medium text-base" colspan="4">
                                 Forwards 
                                 <span class="font-normal text-sm">
-                                    {{ f_protected }}/{{ max_f }}
+                                    {{ sheet.f_protected }}/{{ sheet.max_f }}
                                 </span>
                             </th>
                         </tr>
@@ -500,11 +523,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let forward of [].constructor(max_f); let i = index" class="border-b dark:border-gray-700"
+                        <tr *ngFor="let forward of [].constructor(sheet.max_f); let i = index" class="border-b dark:border-gray-700"
                             [ngClass]="{
-                                'bg-gray-300 text-gray-300': (i + 1) === max_f && franchise_player && franchise_player.position === 'F',
+                                'bg-gray-300 text-gray-300': (i + 1) === sheet.max_f && sheet.franchise_player && sheet.franchise_player.position === 'F',
                             }"> 
-                            <ng-container *ngIf="protected_forwards[i]; else emptyRow">
+                            <ng-container *ngIf="sheet.protected_forwards[i]; else emptyRow">
                                 <!-- Display row with player data if protected_goalies[i] exists -->
                                 <td class="py-1 md:px-4 bg-white dark:bg-gray-800 z-10">
                                     {{ i + 1 }}                   
@@ -513,15 +536,15 @@
                                 <!-- Player Column -->
                                 <td class="flex items-left px-2 py-1 text-gray-900 whitespace-nowrap dark:text-white bg-white dark:bg-gray-800">
                                     <div class="text-sm font-semibold">
-                                        {{ protected_forwards[i].first_name }} {{ protected_forwards[i].last_name }}
+                                        {{ sheet.protected_forwards[i].first_name }} {{ sheet.protected_forwards[i].last_name }}
                                         <span class="ms-0.5 font-normal text-[11px] text-gray-500">
-                                            {{ protected_forwards[i].position }} - {{ protected_forwards[i].short_code }}
+                                            {{ sheet.protected_forwards[i].position }} - {{ sheet.protected_forwards[i].short_code }}
                                         </span>
                                     </div>
                                 </td>
                         
                                 <td class="px-6 py-1 text-right" colspan="2">
-                                    ${{ protected_forwards[i].aav_current | number:'1.0-0' }}
+                                    ${{ sheet.protected_forwards[i].aav_current | number:'1.0-0' }}
                                 </td>     
                             </ng-container>
                         
@@ -550,7 +573,7 @@
                             <th scope="col" class="bg-green-400 text-white dark:bg-gray-700 text-center p-2 font-medium text-base" colspan="4">
                                 Defense 
                                 <span class="font-normal text-sm">
-                                    {{ d_protected }}/{{ max_d }}
+                                    {{ sheet.d_protected }}/{{ sheet.max_d }}
                                 </span>
                             </th>
                         </tr>
@@ -573,11 +596,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let defensemen of [].constructor(max_d); let i = index" class="border-b dark:border-gray-700"
+                        <tr *ngFor="let defensemen of [].constructor(sheet.max_d); let i = index" class="border-b dark:border-gray-700"
                             [ngClass]="{
-                                'bg-gray-300 text-gray-300': (i + 1) === max_d && franchise_player && franchise_player.position === 'D',
+                                'bg-gray-300 text-gray-300': (i + 1) === sheet.max_d && sheet.franchise_player && sheet.franchise_player.position === 'D',
                             }"> 
-                            <ng-container *ngIf="protected_defense[i]; else emptyRow">
+                            <ng-container *ngIf="sheet.protected_defense[i]; else emptyRow">
                                 <!-- Display row with player data if protected_goalies[i] exists -->
                                 <td class="py-1 md:px-4 bg-white dark:bg-gray-800 z-10">
                                     {{ i + 1 }}                   
@@ -586,15 +609,15 @@
                                 <!-- Player Column -->
                                 <td class="flex items-left px-2 py-1 text-gray-900 whitespace-nowrap dark:text-white dark:bg-gray-800">
                                     <div class="text-sm font-semibold">
-                                        {{ protected_defense[i].first_name }} {{ protected_defense[i].last_name }}
+                                        {{ sheet.protected_defense[i].first_name }} {{ sheet.protected_defense[i].last_name }}
                                         <span class="ms-0.5 font-normal text-[11px] text-gray-500">
-                                            {{ protected_defense[i].position }} - {{ protected_defense[i].short_code }}
+                                            {{ sheet.protected_defense[i].position }} - {{ sheet.protected_defense[i].short_code }}
                                         </span>
                                     </div>
                                 </td>
                         
                                 <td class="px-6 py-1 text-right" colspan="2">
-                                    ${{ protected_defense[i].aav_current | number:'1.0-0' }}
+                                    ${{ sheet.protected_defense[i].aav_current | number:'1.0-0' }}
                                 </td>     
                             </ng-container>
                         
@@ -623,7 +646,7 @@
                             <th scope="col" class="bg-green-400 text-white dark:bg-gray-700 text-center p-2 font-medium text-base" colspan="4">
                                 Goalie 
                                 <span class="font-normal text-sm">
-                                    {{ g_protected }}/{{ max_g }}
+                                    {{ sheet.g_protected }}/{{ sheet.max_g }}
                                 </span>
                             </th>
                         </tr>
@@ -643,11 +666,11 @@
                     </thead>
                     
                     <tbody>
-                        <tr *ngFor="let goalie of [].constructor(max_g); let i = index" class="border-b"
+                        <tr *ngFor="let goalie of [].constructor(sheet.max_g); let i = index" class="border-b"
                             [ngClass]="{
-                                'bg-gray-300 text-gray-300': (i + 1) === max_g && franchise_player && franchise_player.position === 'G',
+                                'bg-gray-300 text-gray-300': (i + 1) === sheet.max_g && sheet.franchise_player && sheet.franchise_player.position === 'G',
                             }">
-                            <ng-container *ngIf="protected_goalies[i]; else emptyRow">
+                            <ng-container *ngIf="sheet.protected_goalies[i]; else emptyRow">
                                 <td class="py-1 md:px-4 z-10">
                                     {{ i + 1 }}                   
                                 </td>
@@ -655,15 +678,15 @@
                                 <!-- Player Column -->
                                 <td class="flex items-left px-2 py-1 text-gray-900 whitespace-nowrap dark:text-white dark:bg-gray-800">
                                     <div class="text-sm font-semibold">
-                                        {{ protected_goalies[i].first_name }} {{ protected_goalies[i].last_name }}
+                                        {{ sheet.protected_goalies[i].first_name }} {{ sheet.protected_goalies[i].last_name }}
                                         <span class="ms-0.5 font-normal text-[11px] text-gray-500">
-                                            {{ protected_goalies[i].position }} - {{ protected_goalies[i].short_code }}
+                                            {{ sheet.protected_goalies[i].position }} - {{ sheet.protected_goalies[i].short_code }}
                                         </span>
                                     </div>
                                 </td>
                         
                                 <td class="px-6 py-1 text-right" colspan="2">
-                                    ${{ protected_goalies[i].aav_current | number:'1.0-0' }}
+                                    ${{ sheet.protected_goalies[i].aav_current | number:'1.0-0' }}
                                 </td>     
                             </ng-container>
                         
@@ -691,7 +714,7 @@
                                 Total (Main Sheet)
                             </th>
                             <th class="bg-white text-gray-900 text-right font-medium text-sm py-0.5 md:px-4">
-                                ${{ sheet_total | number:'1.0-0' }}
+                                ${{ sheet.sheet_total | number:'1.0-0' }}
                             </th>
                         </tr>
                         <tr>
@@ -699,7 +722,7 @@
                                 Remaining
                             </th>
                             <th class="bg-white text-gray-900 text-right font-medium text-sm py-0.5 md:px-4">
-                                ${{ sheet_cap - sheet_total | number:'1.0-0' }}
+                                ${{ sheet.sheet_cap - sheet.sheet_total | number:'1.0-0' }}
                             </th>
                         </tr>
                         <tr>
@@ -707,7 +730,7 @@
                                 Added to bench
                             </th>
                             <th class="bg-white text-green-400 text-right font-semibold text-sm py-0.5 md:px-4">
-                                ${{ (sheet_cap - sheet_total) / 2  | number:'1.0-0'}}
+                                ${{ (sheet.sheet_cap - sheet.sheet_total) / 2  | number:'1.0-0'}}
                             </th>
                         </tr>
                     </tbody>
@@ -720,7 +743,7 @@
                             <th scope="col" class="bg-green-400 text-white dark:bg-gray-700 text-center p-2 font-medium text-base" colspan="4">
                                 Bench 
                                 <span class="font-normal text-sm">
-                                    {{ bench.length }}/{{ max_bench }}
+                                    {{ sheet.bench.length }}/{{ sheet.max_bench }}
                                 </span>
                             </th>
                         </tr>
@@ -743,9 +766,9 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let player of [].constructor(max_bench); let i = index" class="w-full border-b dark:bg-gray-800 dark:border-gray-700"> 
+                        <tr *ngFor="let player of [].constructor(sheet.max_bench); let i = index" class="w-full border-b dark:bg-gray-800 dark:border-gray-700"> 
                             
-                            <ng-container *ngIf="bench[i]; else emptyRow">
+                            <ng-container *ngIf="sheet.bench[i]; else emptyRow">
                                 <td class="py-1 md:px-4 bg-white dark:bg-gray-800 z-10">
                                     {{ i + 1 }}                   
                                 </td>
@@ -753,15 +776,15 @@
                                 <!-- Player Column -->
                                 <td class="flex items-left px-2 py-1 text-gray-900 whitespace-nowrap dark:text-white bg-white dark:bg-gray-800">
                                     <div class="text-sm font-semibold">
-                                        {{ bench[i].first_name }} {{ bench[i].last_name }}
+                                        {{ sheet.bench[i].first_name }} {{ sheet.bench[i].last_name }}
                                         <span class="ms-0.5 font-normal text-[11px] text-gray-500">
-                                            {{ bench[i].position }} - {{ bench[i].short_code }}
+                                            {{ sheet.bench[i].position }} - {{ sheet.bench[i].short_code }}
                                         </span>
                                     </div>
                                 </td>
                         
                                 <td class="px-6 py-1 text-right" colspan="2">
-                                    ${{ bench[i].aav_current | number:'1.0-0' }}
+                                    ${{ sheet.bench[i].aav_current | number:'1.0-0' }}
                                 </td>     
                             </ng-container>
                         
@@ -787,7 +810,7 @@
                                 Total (Bench)
                             </th>
                             <th class="bg-white text-gray-900 text-right font-medium text-sm py-0.5 md:px-4">
-                                ${{ bench_total | number:'1.0-0' }}
+                                ${{ sheet.bench_total | number:'1.0-0' }}
                             </th>
                         </tr>
                         <tr>
@@ -796,10 +819,10 @@
                             </th>
                             <th class="bg-white text-right font-medium text-sm py-0.5 md:px-4"
                             [ngClass]="{
-                                'text-green-400': (bench_cap - bench_total) > 0,
-                                'text-red-500': (bench_cap - bench_total) < 0
+                                'text-green-400': (sheet.bench_cap - sheet.bench_total) > 0,
+                                'text-red-500': (sheet.bench_cap - sheet.bench_total) < 0
                             }">
-                                ${{ bench_cap - bench_total | number:'1.0-0' }}
+                                ${{ sheet.bench_cap - sheet.bench_total | number:'1.0-0' }}
                             </th>
                         </tr>
                     </tbody>
@@ -862,5 +885,113 @@
        </div>
     </div>
  </ng-template>
+
+<!-- Finalize Protection Sheet Modal -->
+<ng-template #finalizeSheetModal id="finalizeSheetModal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <!-- Close button -->
+            <button (click)="closeModal()" type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal"> 
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            
+            <!-- Modal header -->
+            <div class="p-6 text-left border-b border-gray-200 dark:border-gray-700">
+                <svg class="w-12 h-12 text-yellow-400 mb-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z"/>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Are you sure you'd like to finalize your sheet?</h3>
+            </div>
+            
+            <!-- Modal body -->
+            <div class="p-6">
+                
+                <div class="p-4 mb-5 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-900 dark:text-red-400 dark:border-red-800" role="alert">
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 w-5 h-5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
+                        </svg>
+                        <span class="font-bold">Important:</span>
+                    </div>
+                    <p class="mt-2 ml-7">This action cannot be undone. Once submitted, you will no longer to be able to edit your sheet. Unprotected players will be automatically dropped from your roster when your commissioner approves the sheet.</p>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                           (click)="closeModal()" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+                        Cancel
+                    </button>
+                    
+                    <button type="button" 
+                           [disabled]="!sheetIsValid()" 
+                           (click)="finalizeSheet(); closeModal()" 
+                           class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700"
+                           [ngClass]="{'opacity-50 cursor-not-allowed': !sheetIsValid()}">
+                        Finalize Sheet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
+
+<!-- Process Protection Sheet Modal -->
+<ng-template #processSheetModal id="processSheetModal" tabindex="-1" aria-hidden="true" class="fixed inset-0 z-50 flex items-center justify-center w-full p-4 overflow-x-hidden overflow-y-auto h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow-lg dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+            <!-- Close button -->
+            <button (click)="closeModal()" type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="popup-modal"> 
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            
+            <!-- Modal header -->
+            <div class="p-6 text-left border-b border-gray-200 dark:border-gray-700">
+                <svg class="w-12 h-12 text-yellow-400 mb-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0zm-9 3.75h.008v.008H12v-.008z"/>
+                </svg>
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Are you sure you'd like to process this sheet?</h3>
+            </div>
+            
+            <!-- Modal body -->
+            <div class="p-6">
+                
+                <div class="p-4 mb-5 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-900 dark:text-red-400 dark:border-red-800" role="alert">
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 w-5 h-5 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
+                        </svg>
+                        <span class="font-bold">Important:</span>
+                    </div>
+                    <p class="mt-2 ml-7">This action cannot be undone. Processing this sheet will drop all unprotected players from the selected team's roster.</p>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex justify-end space-x-3">
+                    <button type="button" 
+                           (click)="closeModal()" 
+                           class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600">
+                        Cancel
+                    </button>
+                    
+                    <button type="button" 
+                           [disabled]="!sheetIsValid()" 
+                           (click)="processSheet(); closeModal()" 
+                           class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 dark:bg-red-600 dark:hover:bg-red-700"
+                           [ngClass]="{'opacity-50 cursor-not-allowed': !sheetIsValid()}">
+                        Process Sheet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</ng-template>
 
 

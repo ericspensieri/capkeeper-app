@@ -2,7 +2,7 @@ import { Component, ElementRef, ViewChild  } from '@angular/core';
 import { GlobalService } from '@app/services/global.service';
 import { SortingService } from '@app/services/sorting.service';
 import { PaginationService } from '@app/services/pagination.service';
-import { User, Activity, Asset } from '@app/types';
+import { User, Activity, Asset, Player } from '@app/types';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -29,6 +29,8 @@ export class LeagueActivityComponent {
   users: User[] = [];
   activityFilter = 'all'
   tradeData: { [key: string]: { partners: string[], assetsByTeam: { [team_id: string]: any[] } } } = {};
+  unprotectedPlayers: Player[] = [];
+
 
   constructor(
     public globalService: GlobalService,
@@ -113,6 +115,7 @@ export class LeagueActivityComponent {
         this.users = response.users;
         this.selected_users = this.users;
         this.trade_items = response.tradeItems;
+        this.unprotectedPlayers = response.sheetItems;
         this.activity_log = response.action_log;
         this.concatDateTimes(this.activity_log);
         this.filterActivities();
@@ -168,7 +171,7 @@ export class LeagueActivityComponent {
 
   formatActionType(action: string): string {
     if (action === 'ir' || action === 'callup') { return 'Roster Move'}
-    if (action === 'create-player' || action === 'edit-player' || action === 'edit-contract' || action === 'sync') { return 'Database Update'}
+    if (action === 'create-player' || action === 'edit-player' || action === 'edit-contract' || action === 'sync' || action === 'protection-sheet') { return 'Database Update'}
     if (action === 'add-player' || action === 'drop-player') { return 'Add/Drop' }
     if (action === 'trade') { return 'Trade' }
     if (action === 'trade-block') { return 'Trade Block' }
@@ -241,6 +244,10 @@ export class LeagueActivityComponent {
   getAssetsByTeam(trade_id: string, team_id: string): Asset[] {
     const items = this.trade_items.filter(asset => asset?.trade_id === trade_id && asset?.traded_to === team_id);
     return items
+  }
+
+  getUnprotectedPlayers(sheet_id: number): Player[] {
+    return this.unprotectedPlayers.filter(player => player.sheet_id === sheet_id);
   }
   
 }

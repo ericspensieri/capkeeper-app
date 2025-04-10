@@ -29,6 +29,10 @@ const routes: Routes = [
         path: ':league_id/trade',
         loadChildren: () => import('./modules/trade/trade.module').then(m => m.TradeModule)
     },
+    {
+        path: ':league_id/draft',
+        loadChildren: () => import('./modules/draft/draft.module').then(m => m.DraftModule)
+    },
 
     { path: '**', redirectTo: 'login' }
 ];

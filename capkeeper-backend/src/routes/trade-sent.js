@@ -38,7 +38,7 @@ export const sendTradeRoute = {
                 }
             }
 
-            return h.response({ trade_id }).code(201);
+            return h.response(trade_id.toString()).code(201);
         } catch (error) {
             console.error('Error handling trade request:', error);
             return h.response(error.message).code(500);

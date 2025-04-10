@@ -19,7 +19,7 @@ export const createDraftRoute = {
                 WHERE league_id = ? AND year = ? AND type = ? ORDER BY draft_id DESC LIMIT 1
             `;
 
-            const draftResult = await db.query(createDraftQuery, [year, type, league_id]);
+            await db.query(createDraftQuery, [year, type, league_id]);
             const idResult = await db.query(retrieveIdQuery, [league_id, year, type]);
             const draft_id = idResult.results[0].draft_id;
            

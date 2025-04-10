@@ -5,29 +5,31 @@ import { RouterModule, Routes } from '@angular/router';
 import { HttpClientModule } from '@angular/common/http';
 import { ModalModule } from 'ngx-bootstrap/modal';
 
-import { LeagueActivityComponent } from './components/league-activity/league-activity.component';
-import { PlayerDatabaseComponent } from './components/player-database/player-database.component';
+import { DraftComponent } from './components/draft/draft.component';
+import { DraftRoomComponent } from './components/draft-room/draft-room.component';
+import { TradeModule } from '../trade/trade.module';
 
 const routes: Routes = [
-  { path: 'activity-log', component: LeagueActivityComponent },
-  { path: 'players', component: PlayerDatabaseComponent },
+  { path: 'history', component: DraftComponent },
+  { path: 'live/:draft_id', component: DraftRoomComponent },
 ];
 
 @NgModule({
   declarations: [
-    LeagueActivityComponent,
-    PlayerDatabaseComponent,
+    DraftComponent,
+    DraftRoomComponent,
   ],
   imports: [
     CommonModule,
     FormsModule,
+    TradeModule,
     HttpClientModule,
     ModalModule,
     RouterModule.forChild(routes)
   ],
   exports: [
-    LeagueActivityComponent,
-    PlayerDatabaseComponent,
+    DraftComponent,
+    DraftRoomComponent
   ]
 })
-export class LeagueModule { }
+export class DraftModule { }

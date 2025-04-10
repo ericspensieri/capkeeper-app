@@ -100,6 +100,8 @@ export class DraftRoomComponent {
         this.draftPlayer(player, false);
       } else if (this.draft.draft_picks[index].player_taken === 'none') {
         this.burnPick(false);
+      } else if (this.draft.draft_picks[index].player_taken === 'penalty') {
+        this.advancePick();
       }
       index++;
     }
@@ -321,6 +323,11 @@ export class DraftRoomComponent {
 
   advancePick(): void {
     if (this.nextPick < this.draft.draft_picks.length) {
+      let skip = false;
+      if (this.draft.draft_picks[this.nextPick].player_taken === 'penalty') {
+        skip = true;
+      }
+
       this.nextPick++;
       this.pickOfRound++;
       
@@ -335,6 +342,10 @@ export class DraftRoomComponent {
       }
       this.resetPickClock();
       this.startPickClock();
+
+      if (skip) {
+        this.advancePick();
+      }
     }
     else {
       this.status = 'complete';
@@ -344,12 +355,36 @@ export class DraftRoomComponent {
 
   undoPick(): void {
     if (this.nextPick > 1) {
-      const prevPickNumber = this.nextPick - 1;
-      const pickIndex = this.draft.draft_picks.findIndex(pick => pick.pick_number === prevPickNumber);
+      let prevPickNumber = this.nextPick - 1;
+      let pickIndex = this.draft.draft_picks.findIndex(pick => pick.pick_number === prevPickNumber);
       
       if (pickIndex !== -1) {
-        const pick = this.draft.draft_picks[pickIndex];
+        let pick = this.draft.draft_picks[pickIndex];
       
+        if (pick.player_taken === 'penalty' && pickIndex > 0) {
+          this.nextPick--;
+          this.pickOfRound--;
+          
+          if (this.pickOfRound === 0) {
+            this.pickOfRound = this.draft.draft_order.length;
+            this.currentRound--;
+          }
+          
+          prevPickNumber = this.nextPick - 1;
+          pickIndex = this.draft.draft_picks.findIndex(pick => pick.pick_number === prevPickNumber);
+          
+          if (pickIndex !== -1) {
+            pick = this.draft.draft_picks[pickIndex];
+          } else {            
+            this.resetPickClock();
+            this.startPickClock();
+            this.filterPlayers();
+            return;
+          }
+        } else if (pick.player_taken === 'penalty' && pickIndex === 0) {
+          return;
+        }
+
         if (pick.player_taken && pick.player_taken !== 'none') {
           const team = this.draft.draft_order.find(team => team.team_id === pick.owned_by);
           

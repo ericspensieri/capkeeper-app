@@ -10,6 +10,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { ProtectionSheetComponent } from './components/protection-sheet/protection-sheet.component';
 import { DraftOrderPipe } from './pipes/draft-order-pipe';
 import { RulesComponent } from './components/rules/rules.component';
+import { DraftOrderComponent } from './components/draft-order/draft-order.component';
 
 const routes: Routes = [
   { path: 'commissioner-hub', component: CommissionerHubComponent },
@@ -24,7 +25,8 @@ const routes: Routes = [
     UserProfileComponent,
     ProtectionSheetComponent,
     DraftOrderPipe,
-    RulesComponent
+    RulesComponent,
+    DraftOrderComponent
   ],
   imports: [
     CommonModule,
@@ -38,7 +40,8 @@ const routes: Routes = [
     UserProfileComponent,
     ProtectionSheetComponent,
     DraftOrderPipe,
-    RulesComponent
+    RulesComponent,
+    DraftOrderComponent
   ]
 })
 export class AdminModule { }

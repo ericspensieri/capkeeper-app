@@ -24,6 +24,8 @@ export class DraftComponent {
   general_draft!: Draft;
   general_order: Team[] = [];
   general_picks!: Draft_Pick[];
+  genOrderSet = false;
+  rookieOrderSet = false;
 
   constructor(
     private playerService: PlayerService,
@@ -63,14 +65,18 @@ export class DraftComponent {
       const rookieDraft = response.drafts.find(draft => draft.type === 'rookie' && draft.year === year);
       
       if (generalDraft) {
+        this.genOrderSet = true;
         this.general_draft = generalDraft;
         this.general_draft.draft_picks = response.draftPicks.filter((pick) => pick.type === 'general');
-        console.log('General: ', this.general_draft)
+      } else {
+        this.genOrderSet = false;
       }
       if (rookieDraft) {
+        this.rookieOrderSet = true;
         this.rookie_draft = rookieDraft;
         this.rookie_draft.draft_picks = response.draftPicks.filter((pick) => pick.type === 'rookie');
-        console.log('Rookie: ', this.rookie_draft)
+      } else {
+        this.rookieOrderSet = false;
       }
 
       this.setDraftOrders();

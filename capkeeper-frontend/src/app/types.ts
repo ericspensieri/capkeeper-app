@@ -103,6 +103,7 @@ export interface Player {
     retention_perc: number,
     last_updated: Date,
     updated_by: string,
+    sheet_id: number| null;
 };
 
 export interface Draft {
@@ -113,6 +114,34 @@ export interface Draft {
     status: string,
     draft_order: Team[],
     draft_picks: Draft_Pick[]
+}
+
+export interface Protection_Sheet {
+    [key: string]: any;
+    sheet_id: number | null,
+    year: number,
+    status: string,
+    league_id: string,
+    team_id: string,
+    protected_players: Player[]
+    sheet_cap: number;
+    sheet_total: number;
+    bench_cap: number;
+    bench_total: number;
+    bench_base: number;
+    max_f: number;
+    max_d: number;
+    max_g: number;
+    max_bench: number;
+    protected_count: number;
+    franchise_player: Player | null;
+    protected_forwards: Player[];
+    f_protected: number;
+    protected_defense: Player[];
+    d_protected: number;
+    protected_goalies: Player[];
+    g_protected: number;
+    bench: Player[];
 }
 
 export interface Draft_Pick {
@@ -204,6 +233,7 @@ export interface Activity {
     time: string,
     user_id: string,
     trade_id: string,
+    sheet_id: number,
 }
 
 export interface Season {

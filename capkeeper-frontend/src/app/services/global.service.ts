@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { Team, League, NHL_Team, User, Activity, Asset, Trade, FA_Pick, Draft_Pick, Season } from '../types';
+import { Team, League, NHL_Team, User, Activity, Asset, Trade, FA_Pick, Draft_Pick, Season, Player } from '../types';
 import { HttpParams, HttpClient } from '@angular/common/http';
 import { Router, NavigationEnd, Event } from '@angular/router';
 import { TeamService } from './team.service';
@@ -203,10 +203,10 @@ export class GlobalService {
     return this.http.get<{ recentActivity: Activity[], teams: Team[], teamPoints: Season[], faPicks: FA_Pick[], generalPicks: Draft_Pick[], rookiePicks: Draft_Pick[] }>(url);
   }
 
-  getActivitiesByLeague(league_id: string, start: string, end: string): Observable<{ action_log: Activity[], users: User[], tradeItems: Asset[] }> {
+  getActivitiesByLeague(league_id: string, start: string, end: string): Observable<{ action_log: Activity[], users: User[], tradeItems: Asset[], sheetItems: Player[] }> {
     const url = `api/${league_id}/activity-log`;
     const params = new HttpParams().set('start', start).set('end', end);
-    return this.http.get<{ action_log: Activity[], users: User[], tradeItems: Asset[] }>(url, { params });
+    return this.http.get<{ action_log: Activity[], users: User[], tradeItems: Asset[], sheetItems: Player[] }>(url, { params });
   }
 
   faIsExpired(pick: FA_Pick): boolean {
@@ -215,7 +215,7 @@ export class GlobalService {
     return expiryDate < currentDate;
   }
 
-  recordAction(league_id: string, uid: string, action: string, message: string, trade_id?: string) {
+  recordAction(league_id: string, uid: string, action: string, message: string, trade_id?: string, sheet_id?: number) {
     const actionData = {
       league_id: league_id,
       message: message,
@@ -223,7 +223,8 @@ export class GlobalService {
       time: this.getTime(),
       user_id: uid,
       action_type: action,
-      trade_id: trade_id ? trade_id : null 
+      trade_id: trade_id ? trade_id : null,
+      sheet_id: sheet_id ? sheet_id : null 
     }
   
     this.http.post('api/record-action', actionData)

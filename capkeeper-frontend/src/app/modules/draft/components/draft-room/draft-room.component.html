@@ -278,10 +278,10 @@
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 7h14m-9 3v8m4-8v8M10 3h4a1 1 0 0 1 1 1v3H9V4a1 1 0 0 1 1-1ZM6 7h12v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7Z"/>
                 </svg>                                
             </button>
-            <button [disabled]="!draftInProgress()" (click)="openModal(tradeModal, 'trade')" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-2.5 py-2.5 text-center inline-flex items-center"
+            <button [disabled]="!draftInProgress() || testMode" (click)="openModal(tradeModal, 'trade')" type="button" class="text-white bg-blue-500 hover:bg-blue-600 font-medium rounded-lg text-sm px-2.5 py-2.5 text-center inline-flex items-center"
                 [ngClass]="{
-                    'bg-blue-500 hover:bg-blue-600 focus:ring-green-300': draftInProgress(),
-                    'bg-blue-300 cursor-not-allowed': !draftInProgress()
+                    'bg-blue-500 hover:bg-blue-600 focus:ring-green-300': draftInProgress() && !testMode,
+                    'bg-blue-300 cursor-not-allowed': !draftInProgress() || testMode
                 }"
             >
                 Quick Trade
@@ -436,13 +436,13 @@
                 <div class="block h-24 p-2 border rounded-lg shadow-md relative"
                     [ngClass]="{
                       'bg-white border-gray-400': pick.assigned_to === pick.owned_by && pick.player_first_name,
-                      'bg-red-200 border-red-300': pick.player_taken === 'none',
-                      'bg-yellow-100 border-yellow-200': pick.assigned_to !== pick.owned_by && pick.player_taken !== 'none',
-                      'opacity-40': ((pick.player_taken === null || pick.player_taken === '') && pick.pick_number !== nextPick) || (!draftInProgress() && !draftComplete()),
+                      'bg-red-200 border-red-300': pick.player_taken === 'none' || pick.player_taken === 'penalty',
+                      'bg-yellow-100 border-yellow-200': pick.assigned_to !== pick.owned_by && pick.player_taken !== 'none' && pick.player_taken !== 'penalty',
+                      'opacity-40': ((pick.player_taken === null || pick.player_taken === '') && pick.pick_number !== nextPick) || (!draftInProgress() && !draftComplete()) || (pick.player_taken === 'penalty' && pick.pick_number > nextPick),
                       'border-2 border-green-400 ring-2 ring-green-200': draftInProgress() && pick.pick_number === nextPick
                     }">
                   
-                  <!-- Team watermark for traded picks - moved to bottom right corner and smaller -->
+                  <!-- Team watermark for traded picks -->
                   <div *ngIf="pick.assigned_to !== pick.owned_by" 
                       class="absolute bottom-1 right-1 pointer-events-none">
                     <div class="w-8 h-8 rounded-full overflow-hidden opacity-60">
@@ -458,7 +458,7 @@
                     Now
                   </div>
                   
-                  <!-- Pick content with a z-index to appear above watermark -->
+                  <!-- Pick content -->
                   <div class="relative z-10 h-full flex flex-col">
                     <!-- Player name -->
                     <div class="flex-grow">
@@ -476,6 +476,9 @@
                         </span>
                         <span *ngIf="!pick.player_first_name && pick.player_taken === 'none'" class="text-red-800">
                           Burned
+                        </span>
+                        <span *ngIf="!pick.player_first_name && pick.player_taken === 'penalty'" class="text-red-800">
+                            Penalty
                         </span>
                       </h5>
                       <p class="text-[10px] text-gray-500 dark:text-gray-400">

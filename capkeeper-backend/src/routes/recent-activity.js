@@ -53,7 +53,20 @@ export const recentActivityRoute = {
                 [league_id, start, end]
             );
 
-            return { action_log, users, tradeItems };
+            const { results: sheetItems } = await db.query(
+                `SELECT pp.player_id, p.first_name, p.last_name, p.position, p.short_code, pp.sheet_id
+                FROM protected_players pp JOIN players p ON pp.player_id = p.player_id
+                WHERE pp.isProtected = 0
+                    AND pp.sheet_id IN (SELECT DISTINCT sheet_id
+                        FROM recent_activity
+                        WHERE league_id = ?
+                            AND date BETWEEN ? AND ?
+                            AND sheet_id IS NOT NULL)
+                ORDER BY p.aav_current DESC
+                `, [league_id, start, end]
+            )
+
+            return { action_log, users, tradeItems, sheetItems };
 
         } catch (err) {
             console.error(err);

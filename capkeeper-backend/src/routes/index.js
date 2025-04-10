@@ -31,6 +31,7 @@ import { resolveTradeConditionRoute } from "./resolve-condition.js";
 import { scrapeContractsRoute } from "./scrape-contracts.js";
 import { scrapeTradesRoute } from "./scrape-trades.js";
 import { commissionerToggleRoute } from "./commissioner-toggles.js";
+import { finalizeProtectionSheetRoute } from "./finalize-protection-sheet.js";
 
 export default [
     leagueRoute,
@@ -54,6 +55,7 @@ export default [
     draftHistoryRoute,
     submitProtectionsRoute,
     loadProtectionsRoute,
+    finalizeProtectionSheetRoute,
     commisssionerHubRoute,
     commissionerToggleRoute,
     editLeagueRoute,
